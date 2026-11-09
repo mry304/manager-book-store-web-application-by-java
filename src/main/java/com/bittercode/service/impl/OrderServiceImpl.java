@@ -19,6 +19,180 @@ import com.bittercode.util.DBUtil;
 import com.bittercode.util.OrderEmailService;
 
 public class OrderServiceImpl implements OrderService {
+    private static volatile boolean orderCodeChecked = false;
+
+    private void ensureOrderCodeColumn(Connection con) {
+        if (orderCodeChecked) return;
+        synchronized (OrderServiceImpl.class) {
+            if (orderCodeChecked) return;
+            try (PreparedStatement ps = con.prepareStatement(
+                    "ALTER TABLE orders ADD COLUMN order_code BIGINT UNIQUE NULL")) {
+                ps.executeUpdate();
+            } catch (SQLException ignored) {
+                // Column already exists or another thread created it
+            }
+            orderCodeChecked = true;
+        }
+    }
+
+    @Override
+    public String createOrderWithCode(String username, List<Cart> cartItems, double totalAmount,
+                                      String shippingEmail, String shippingAddress, String paymentMethod,
+                                      long orderCode) throws StoreException {
+        Connection con = DBUtil.getConnection();
+        ensureOrderCodeColumn(con);
+        String orderId = "ORD" + orderCode;
+        String validUsername = resolveUsername(con, username);
+
+        String insertOrderQuery = "INSERT INTO orders (order_id, order_code, username, total_amount, status, shipping_email, shipping_address, payment_method) " +
+                                  "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String insertDetailQuery = "INSERT INTO order_details (order_id, book_barcode, quantity, amount) VALUES (?, ?, ?, ?)";
+
+        try {
+            con.setAutoCommit(false);
+
+            try (PreparedStatement psOrder = con.prepareStatement(insertOrderQuery)) {
+                psOrder.setString(1, orderId);
+                psOrder.setLong(2, orderCode);
+                psOrder.setString(3, validUsername);
+                psOrder.setDouble(4, totalAmount);
+                psOrder.setString(5, OrderStatus.PENDING.name());
+                psOrder.setString(6, normalizeOptionalValue(shippingEmail));
+                psOrder.setString(7, normalizeOptionalValue(shippingAddress));
+                psOrder.setString(8, normalizeOptionalValue(paymentMethod));
+                psOrder.executeUpdate();
+            }
+
+            try (PreparedStatement psDetail = con.prepareStatement(insertDetailQuery)) {
+                for (Cart cart : cartItems) {
+                    psDetail.setString(1, orderId);
+                    psDetail.setString(2, cart.getBook().getBarcode());
+                    psDetail.setInt(3, cart.getQuantity());
+                    psDetail.setDouble(4, cart.getBook().getPrice() * cart.getQuantity());
+                    psDetail.addBatch();
+                }
+                psDetail.executeBatch();
+            }
+
+            con.commit();
+            return orderId;
+        } catch (SQLException e) {
+            try {
+                con.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+            throw new StoreException(ResponseCode.INTERNAL_SERVER_ERROR);
+        } finally {
+            try {
+                con.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public Order getOrderByOrderCode(long orderCode) throws StoreException {
+        Connection con = DBUtil.getConnection();
+        ensureOrderCodeColumn(con);
+        String query = "SELECT * FROM orders WHERE order_code = ?";
+        try (PreparedStatement ps = con.prepareStatement(query)) {
+            ps.setLong(1, orderCode);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Order order = mapOrder(rs);
+                    order.setItems(getOrderDetailsByOrderId(order.getOrderId(), con));
+                    return order;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new StoreException(ResponseCode.INTERNAL_SERVER_ERROR);
+        }
+        return null;
+    }
+
+    @Override
+    public boolean confirmPaymentAndDeductStock(long orderCode) throws StoreException {
+        Connection con = DBUtil.getConnection();
+        ensureOrderCodeColumn(con);
+        Order order = getOrderByOrderCode(orderCode);
+        if (order == null) {
+            return false;
+        }
+
+        // Idempotent: If order is already confirmed or further in lifecycle, return true
+        if (OrderStatus.CONFIRMED.name().equalsIgnoreCase(order.getStatus()) ||
+            OrderStatus.SHIPPING.name().equalsIgnoreCase(order.getStatus()) ||
+            OrderStatus.COMPLETED.name().equalsIgnoreCase(order.getStatus())) {
+            return true;
+        }
+
+        if (!OrderStatus.PENDING.name().equalsIgnoreCase(order.getStatus())) {
+            return false;
+        }
+
+        String updateOrderSql = "UPDATE orders SET status = 'CONFIRMED' WHERE order_code = ? AND status = 'PENDING'";
+        String updateStockSql = "UPDATE books SET quantity = GREATEST(0, quantity - ?) WHERE barcode = ?";
+
+        try {
+            con.setAutoCommit(false);
+
+            int updatedRows;
+            try (PreparedStatement psOrder = con.prepareStatement(updateOrderSql)) {
+                psOrder.setLong(1, orderCode);
+                updatedRows = psOrder.executeUpdate();
+            }
+
+            if (updatedRows > 0) {
+                List<OrderDetail> items = order.getItems();
+                if (items == null || items.isEmpty()) {
+                    items = getOrderDetailsByOrderId(order.getOrderId(), con);
+                }
+
+                if (items != null && !items.isEmpty()) {
+                    try (PreparedStatement psStock = con.prepareStatement(updateStockSql)) {
+                        for (OrderDetail item : items) {
+                            psStock.setInt(1, item.getQuantity());
+                            psStock.setString(2, item.getBookBarcode());
+                            psStock.addBatch();
+                        }
+                        psStock.executeBatch();
+                    }
+                }
+
+                con.commit();
+                order.setStatus(OrderStatus.CONFIRMED.name());
+                // Send confirmation email asynchronously
+                try {
+                    OrderEmailService.getInstance().sendOrderConfirmationEmail(order);
+                } catch (Exception ex) {
+                    System.err.println("[OrderService] Email notification error: " + ex.getMessage());
+                }
+                return true;
+            } else {
+                con.rollback();
+                return false;
+            }
+        } catch (SQLException e) {
+            try {
+                con.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+            throw new StoreException(ResponseCode.INTERNAL_SERVER_ERROR);
+        } finally {
+            try {
+                con.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     @Override
     public String createOrder(String username, List<Cart> cartItems, double totalAmount) throws StoreException {
@@ -565,6 +739,13 @@ public class OrderServiceImpl implements OrderService {
         try {
             order.setPaymentMethod(rs.getString("payment_method"));
         } catch (SQLException ignored) {}
+        try {
+            long code = rs.getLong("order_code");
+            if (!rs.wasNull()) {
+                order.setOrderCode(code);
+            }
+        } catch (SQLException ignored) {}
+
 
         return order;
     }

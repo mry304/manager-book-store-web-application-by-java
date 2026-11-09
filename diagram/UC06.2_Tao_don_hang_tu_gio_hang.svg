@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1510" viewBox="0 0 1700 1510" role="img" aria-labelledby="title desc">
+  <title id="title">Sơ đồ tuần tự UC06.2 – Tạo đơn hàng từ giỏ hàng</title>
+  <desc id="desc">Khách hàng gửi thông tin thanh toán qua payment.html. CreateQRPaymentServlet kiểm tra phiên, giỏ hàng và thông tin giao nhận, sau đó OrderServiceImpl lưu đơn và chi tiết trong giao dịch JDBC, StoreUtil xóa giỏ hàng. Cuối cùng chuyển sang UC06.3.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#263445"/></marker>
+    <marker id="returnArrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#667085"/></marker>
+    <style>
+      text{font-family:Arial,'Segoe UI',sans-serif;fill:#17212f}.title{font-size:27px;font-weight:700}.subtitle{font-size:15px;fill:#526174}.head{font-size:15px;font-weight:600}.msg{font-size:13px}.small{font-size:12px;fill:#465467}.frameLabel{font-size:13px;font-weight:700;fill:#344054}.lifeline{stroke:#9aa7b5;stroke-width:1.3;stroke-dasharray:6 6}.call{stroke:#263445;stroke-width:1.6;fill:none;marker-end:url(#arrow)}.ret{stroke:#667085;stroke-width:1.4;stroke-dasharray:6 4;fill:none;marker-end:url(#returnArrow)}.activation{fill:#d9e8f7;stroke:#58718e;stroke-width:1}.frame{fill:#fbfcfe;stroke:#7b8795;stroke-width:1.2}.separator{stroke:#9aa7b5;stroke-dasharray:5 4;stroke-width:1}.tag{fill:#edf2f7;stroke:#bac5d1;stroke-width:1}
+    </style>
+  </defs>
+  <rect width="1700" height="1510" fill="#fff"/>
+  <text x="48" y="43" class="title">Sơ đồ tuần tự UC06.2 – Tạo đơn hàng từ giỏ hàng</text>
+  <text x="48" y="69" class="subtitle">Luồng theo cấu trúc mã nguồn Java Servlet/JDBC hiện tại · Mũi tên nét đứt biểu thị dữ liệu trả về</text>
+
+  <!-- Participants -->
+  <g text-anchor="middle">
+    <circle cx="82" cy="93" r="7" fill="none" stroke="#263445" stroke-width="1.5"/><path d="M82 100 V118 M70 107 H94 M82 118 L72 130 M82 118 L92 130" stroke="#263445" stroke-width="1.5" fill="none"/><text x="82" y="148" class="head">Khách hàng</text>
+    <rect x="190" y="88" width="145" height="42" rx="5" fill="#f0f4f8" stroke="#718096"/><text x="262" y="114" class="head">:payment.html</text>
+    <rect x="408" y="82" width="185" height="54" rx="5" fill="#e8f1fb" stroke="#597796"/><text x="500" y="105" class="head">:CreateQRPayment</text><text x="500" y="124" class="small">Servlet</text>
+    <rect x="653" y="88" width="140" height="42" rx="5" fill="#f0f4f8" stroke="#718096"/><text x="723" y="114" class="head">:StoreUtil</text>
+    <rect x="860" y="88" width="140" height="42" rx="5" fill="#f0f4f8" stroke="#718096"/><text x="930" y="114" class="head">:HttpSession</text>
+    <rect x="1062" y="82" width="180" height="54" rx="5" fill="#e8f1fb" stroke="#597796"/><text x="1152" y="105" class="head">:OrderServiceImpl</text><text x="1152" y="124" class="small">(JDBC)</text>
+    <rect x="1325" y="88" width="115" height="42" rx="5" fill="#f0f4f8" stroke="#718096"/><text x="1382" y="114" class="head">:MySQL</text>
+    <rect x="1510" y="88" width="130" height="42" rx="5" fill="#fff4df" stroke="#b38a3d"/><text x="1575" y="114" class="head">:PayOS</text>
+  </g>
+  <g class="lifeline">
+    <line x1="82" y1="136" x2="82" y2="1437"/><line x1="262" y1="130" x2="262" y2="1437"/><line x1="500" y1="136" x2="500" y2="1437"/><line x1="723" y1="130" x2="723" y2="1437"/><line x1="930" y1="130" x2="930" y2="1437"/><line x1="1152" y1="136" x2="1152" y2="1437"/><line x1="1382" y1="130" x2="1382" y2="1437"/><line x1="1575" y1="130" x2="1575" y2="1437"/>
+  </g>
+  <!-- activation bars -->
+  <rect x="494" y="165" width="12" height="1235" class="activation"/>
+  <rect x="717" y="223" width="12" height="63" class="activation"/>
+  <rect x="924" y="237" width="12" height="44" class="activation"/>
+  <rect x="1146" y="552" width="12" height="518" class="activation"/>
+  <rect x="1376" y="570" width="12" height="473" class="activation"/>
+  <rect x="717" y="1118" width="12" height="147" class="activation"/>
+
+  <!-- main messages -->
+  <g>
+    <text x="82" y="164" class="msg">1. Chọn thanh toán, nhập thông tin giao nhận</text><path d="M82 171 H262" class="call"/>
+    <text x="262" y="197" class="msg">2. POST /create-qr-payment</text><path d="M262 204 H500" class="call"/>
+    <text x="500" y="230" class="msg">3. isLoggedIn(CUSTOMER, session)</text><path d="M500 237 H723" class="call"/>
+    <text x="723" y="256" class="msg">4. Đọc vai trò</text><path d="M723 263 H930" class="call"/>
+    <text x="930" y="282" class="msg">5. Vai trò phiên</text><path d="M930 289 H723" class="ret"/>
+    <text x="723" y="308" class="msg">6. Kết quả kiểm tra phiên</text><path d="M723 315 H500" class="ret"/>
+    <text x="500" y="341" class="msg">7. Lấy username, cartItems</text><path d="M500 348 H930" class="call"/>
+    <text x="930" y="367" class="msg">8. username, danh sách Cart</text><path d="M930 374 H500" class="ret"/>
+    <text x="500" y="400" class="msg">9. Kiểm tra họ tên, email, địa chỉ</text><path d="M500 407 H540 V419 H500" class="call"/>
+    <text x="500" y="433" class="msg">10. Tính tổng từ cartItems, sinh orderCode</text><path d="M500 440 H540 V452 H500" class="call"/>
+    <rect x="540" y="448" width="405" height="28" rx="4" class="tag"/><text x="552" y="467" class="small">PayOS amount = max(1.000 VNĐ, tổng tiền làm tròn)</text>
+    <text x="500" y="504" class="msg">11. createOrderWithCode(username, cartItems, totalAmount, ...)</text><path d="M500 511 H1152" class="call"/>
+    <text x="1152" y="538" class="msg">12. ALTER TABLE orders ADD COLUMN order_code</text><path d="M1152 545 H1382" class="call"/>
+    <text x="1152" y="564" class="msg">Kết quả kiểm tra cấu trúc</text><path d="M1382 571 H1152" class="ret"/>
+    <text x="1152" y="590" class="msg">13. SELECT username theo username/mailid</text><path d="M1152 597 H1382" class="call"/>
+    <text x="1382" y="616" class="msg">14. Trả username tìm được</text><path d="M1382 623 H1152" class="ret"/>
+    <text x="1152" y="652" class="msg">15. BEGIN TRANSACTION</text><path d="M1152 659 H1382" class="call"/>
+    <text x="1152" y="696" class="msg">16. INSERT orders (status = PENDING, order_code, ...)</text><path d="M1152 703 H1382" class="call"/>
+    <text x="1090" y="735" class="frameLabel">loop [mỗi Cart trong cartItems]</text>
+    <rect x="1080" y="742" width="365" height="122" rx="2" class="frame"/>
+    <path d="M1152 776 H1382" class="call"/><text x="1152" y="769" class="msg">17. INSERT order_details</text>
+    <path d="M1152 820 H1382" class="call"/><text x="1152" y="813" class="msg">(order_id, barcode, quantity, amount)</text>
+    <text x="1152" y="894" class="msg">18. COMMIT</text><path d="M1152 901 H1382" class="call"/>
+    <text x="1382" y="920" class="msg">Giao dịch thành công</text><path d="M1382 927 H1152" class="ret"/>
+    <text x="1152" y="956" class="msg">19. Trả orderId</text><path d="M1152 963 H500" class="ret"/>
+    <text x="500" y="992" class="msg">20. clearUserCart(session, username)</text><path d="M500 999 H723" class="call"/>
+    <text x="723" y="1025" class="msg">21. DELETE giỏ theo username/mailid</text><path d="M723 1032 H1382" class="call"/>
+    <text x="1382" y="1051" class="msg">22. Kết quả xóa user_cart</text><path d="M1382 1058 H723" class="ret"/>
+    <text x="723" y="1087" class="msg">23. Xóa cartItems và thuộc tính giỏ trong session</text><path d="M723 1094 H930" class="call"/>
+    <text x="930" y="1113" class="msg">Xác nhận xóa</text><path d="M930 1120 H723" class="ret"/>
+    <text x="500" y="1290" class="msg">24. Chuyển sang luồng UC06.3 (cùng servlet hiện tại)</text>
+    <rect x="500" y="1300" width="1075" height="63" rx="5" fill="#fff9ec" stroke="#b38a3d" stroke-width="1.2"/>
+    <text x="520" y="1326" class="head">ref UC06.3 – Tạo và hiển thị mã VietQR</text>
+    <text x="520" y="1348" class="small">CreateQRPaymentServlet tiếp tục gọi PayOS và chuyển tiếp payment-checkout.jsp khi sẵn sàng.</text>
+  </g>
+
+  <!-- exception paths -->
+  <rect x="55" y="1160" width="1450" height="104" rx="5" fill="#fff7f6" stroke="#c77b72" stroke-width="1.2"/>
+  <text x="72" y="1185" class="frameLabel">Các nhánh dừng luồng (alt)</text>
+  <line x1="72" y1="1194" x2="1480" y2="1194" class="separator"/>
+  <text x="78" y="1218" class="small">[Không đăng nhập Customer] → /userlog</text>
+  <text x="400" y="1218" class="small">[Giỏ rỗng] → /cart</text>
+  <text x="650" y="1218" class="small">[Thông tin nhận hàng sai] → /checkout?error</text>
+  <text x="1030" y="1218" class="small">[Lỗi lưu đơn/chi tiết] → ROLLBACK → /checkout?error</text>
+  <text x="78" y="1245" class="small">Trong các nhánh trên, hệ thống không đi tiếp đến UC06.3; lỗi DB được hoàn tác trước khi trả lỗi.</text>
+
+  <text x="48" y="1470" class="small">Đối chiếu code: CreateQRPaymentServlet · OrderServiceImpl · StoreUtil · orders · order_details · user_cart</text>
+</svg>

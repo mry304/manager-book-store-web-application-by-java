@@ -1,132 +1,60 @@
+# Hiệu sách trực tuyến
 
-- User Login Credentials: (shashi/shashi)
-- Admin Login Credentials: (Admin/Admin)
-<hr>
+Ứng dụng bán sách trực tuyến xây dựng bằng Java Servlet, JDBC, Maven và MySQL. Dự án được đóng gói dưới dạng WAR để triển khai trên Apache Tomcat.
 
-### About
+## Yêu cầu
 
-A user-friendly Online Bookstore project in which users can log in or register, view the available books, select books along with their quantity, and buy them. Users can also get payment receipts after successful payment. The project can also be used by the administrator, who can add new books, remove books, increase and decrease the quantity of books, change the price of the books as well as maintain the selling history of books.
+- JDK 17 (không phải chỉ JRE); kiểm tra bằng `java -version` và `javac -version`.
+- Apache Maven 3.8 trở lên.
+- MySQL 8.x.
+- Apache Tomcat 10.1 trở lên. Dự án dùng Jakarta Servlet 6 (`jakarta.servlet`), nên không tương thích với Tomcat 9 trở xuống.
 
+Git và MySQL Workbench là tùy chọn nhưng hữu ích khi thiết lập dự án.
 
-<span style="color:blue">**This Website is built for following purpose:-**</span>
-- For Selling books online.
-- Maintaining books selling history.
-- Adding and managing books.
-- User Friendly.
-- For Implementation of Http Servlets in Java.
-- This is a Mini-project developed using Java, Jdbc, And Servlets.
+## Cài đặt và chạy cục bộ
 
-<span style="color:blue">**Admin Have Following Access for this online store site:-**</span>
-- Add New Books.
-- View Books Available.
-- Remove Books.
-- Increase Books Amount.
+### 1. Lấy mã nguồn
 
-<span style="color:blue">**Users Have Following Access for this online store site:-**</span>
-- Create New Account or Register.
-- Login.
-- View Available Books.
-- Select Books to Buy.
-- Select Books Quantity.
-- Buy Books.
-- Get Payment Receipt.
-
-### Technologies used:-
-1. Front-End Development:
-- HTML
-- CSS
-- Javascript
-- BootStrap
-
-2. Back-End Development:
-- Java [JDK 17+]
-- JDBC
-- Servlet
-
-3. Database:
-- MySql
-
-### ================ Software And Tools Required ================
-- : Git [https://www.youtube.com/watch?v=gv7VPQ4LZ7g]
-- : Java JDK 17+ [https://www.youtube.com/watch?v=O9PWH9SeTTE]
-- : Eclipse EE (Enterprise Edition) [https://www.youtube.com/watch?v=8aDsEV7txXE]
-- : Apache Maven [https://www.youtube.com/watch?v=jd2zx3dLjuw]
-- : Tomcat v11.0+ [https://youtu.be/mLFPodZO8Iw?t=903]
-- : MySQL Server [https://www.youtube.com/watch?v=Ydh5jYA6Frs]
-- : MySQL Workbench (optional) [https://www.youtube.com/watch?v=t79oCeTXHwg]
-
-### ================= Dummy Database Initialization =================
-
-STEP 1: Open MySQL Command Prompt or MySQL Workbench
-
-STEP 2: Login to the administrator user as : ```mysql -u <username> -p``` (Enter Password if asked)
-
-STEP 3: Copy paste the following MySql Commands-
-```MySQL
-create database if not exists onlinebookstore;
-
-use onlinebookstore;
-
-create table if not exists books(barcode varchar(100) primary key, name varchar(100), author varchar(100), price int, quantity int);
-
-create table if not exists users(username varchar(100) primary key,password varchar(100), firstname varchar(100),
-    lastname varchar(100),address text, phone varchar(100),mailid varchar(100),usertype int);
-
-insert into books values('9780134190563','The Go Programming Language','Alan A. A. Donovan and Brian W. Kernighan',400,8);
-insert into books values('9780133053036','C++ Primer','Stanley Lippman and Josée Lajoie and Barbara Moo',976,13);
-insert into books values('9781718500457','The Rust Programming Language','Steve Klabnik and Carol Nichols',560,12);
-insert into books values('9781491910740','Head First Java','Kathy Sierra and Bert Bates and Trisha Gee',754,23);
-insert into books values('9781492056300','Fluent Python','Luciano Ramalho',1014,5);
-insert into books values('9781720043997','The Road to Learn React','Robin Wieruch',239,18);
-insert into books values('9780132350884','Clean Code: A Handbook of Agile Software Craftsmanship','Robert C Martin',288,3);
-insert into books values('9780132181273','Domain-Driven Design','Eric Evans',560,28);
-insert into books values('9781951204006','A Programmers Guide to Computer Science','William Springer',188,4);
-insert into books values('9780316204552','The Soul of a New Machine','Tracy Kidder',293,30);
-insert into books values('9780132778046','Effective Java','Joshua Bloch',368,21);
-insert into books values('9781484255995','Practical Rust Projects','Shing Lyu',257,15);
-insert into users values('demo','demo','Demo','User','Demo Home','42502216225','demo@gmail.com',2);
-insert into users values('Admin','Admin','Mr.','Admin','Haldia WB','9584552224521','admin@gmail.com',1);
-insert into users values('shashi','shashi','Shashi','Raj','Bihar','1236547089','shashi@gmail.com',2);
-
-commit;
-
+```powershell
+git clone <repository-url>
+Set-Location selling-book-store-main
 ```
 
-### ========== Importing and Running The Project Through Eclipse EE ==========
+### 2. Tạo cơ sở dữ liệu
 
-Step 0: Open Eclipse Enterprise Edition. [Install, if not already installed.]
+Đăng nhập MySQL bằng tài khoản có quyền tạo database, rồi chạy hai script theo thứ tự sau:
 
-Step 1: Click On File > Import > Git > Projects From Git > Clone Uri > Paste The Repository Url as: ```https://github.com/shashirajraja/onlinebookstore.git```> Select master Branch > Next > Next > Finish.
+```powershell
+mysql -u root -p < setup/CreateDatastore.sql
+mysql -u root -p < setup/AlterOrdersTable.sql
+```
 
-Step 2. a: Go inside ```src/main/resources > application.properties``` and update the value of database details as per your usage, like db.driver, db.host, db.username and db.password according to your installed mysql/postgresql admin user credentials.
+`CreateDatastore.sql` tạo database `onlinebookstore` và các bảng chính. `AlterOrdersTable.sql` là script cập nhật an toàn để bổ sung các trường vòng đời đơn hàng cho cả database mới lẫn database đã tồn tại.
 
-Step 2.b: Right Click on Project > Run as > Maven Build > In the goals field enter "clean install" > apply > run
+### 3. Cấu hình kết nối MySQL
 
-Step 2.c: Right Click On Project > Build Path > Configure Build Path > Libraries > Remove and Update Any Libraries if Red Mark Exists > Finish.
+Mở `src/main/resources/application.properties` và điều chỉnh các giá trị cho máy của bạn:
 
-Step 3: [Only If Tomcat Server is not configured in Eclipse] : Right Click On Project > Run As > Run On Server > Select Tomcat V8.0 > (Select Tomcat V8.0 Installation Location If Asked) Next > Add onlinebookstore > Finish.
+```properties
+db.driver=com.mysql.cj.jdbc.Driver
+db.host=jdbc:mysql://localhost
+db.port=3306
+db.name=onlinebookstore
+db.username=root
+db.password=your-mysql-password
+```
 
-Step 4: In The Server Tab > Double Click On Tomcat Server > Ports > Change The Port Number For Http/1.1 To 8083 > Close And Save.
+Phần cấu hình database hiện được đọc từ `application.properties`; vì vậy cần sửa tệp này trước khi build nếu thông tin MySQL của bạn khác mặc định.
 
-Step 5: Right Click On Project > Run As > Run On Server > Select Tomcat v8.0 > Next > Add All> Done.
+### 4. Cấu hình email và PayOS (tùy chọn)
 
-Step 6: Check Running The Site At  <a href="http://localhost:8083/onlinebookstore/">http://localhost:8083/onlinebookstore/</a>
+Email xác nhận đơn hàng và thanh toán VietQR cần các biến môi trường tương ứng. Tạo tệp `.env` từ mẫu:
 
-Step 7: Default Username And Password For Admin Is "Admin" And "Admin"
+```powershell
+Copy-Item .env.example .env
+```
 
-Step 8: The default Username And Password For User Is "shashi" And "shashi"
-
-## FAQ
-**Question:1** Unable to Connect to Database?
-
-**Answer:** Please check you have installed the mysql correctly and have updated the correct db details in application.properties file. Also you can try doing maven clean install and force update the project and restart.
-<hr>
-
-Note:- Considering this as a Sample Project, we have not much considered of web security.
-
-### SMTP email configuration
-
-Copy `.env.example` to `.env` in the project root and set the SMTP credentials. The `.env` file is ignored by Git and must never be committed. For production, set the same values as environment variables instead of deploying a `.env` file.
+Trên macOS/Linux dùng `cp .env.example .env`. Sau đó thay toàn bộ giá trị mẫu trong `.env`:
 
 ```properties
 SMTP_HOST=smtp.gmail.com
@@ -137,6 +65,65 @@ SMTP_FROM=your-email@gmail.com
 SMTP_FROM_NAME=BOOKS
 SMTP_STARTTLS=true
 APP_BASE_URL=http://localhost:8080/onlinebookstore
+
+PAYOS_CLIENT_ID=your-payos-client-id
+PAYOS_API_KEY=your-payos-api-key
+PAYOS_CHECKSUM_KEY=your-payos-checksum-key
+PAYOS_RETURN_URL=http://localhost:8080/onlinebookstore/payment-success.jsp
+PAYOS_CANCEL_URL=http://localhost:8080/onlinebookstore/checkout
 ```
 
-Run `setup/AlterOrdersTable.sql` once before deploying. It adds the delivery-email, delivery-address, and payment-method snapshot fields required by order emails.
+PayOS ưu tiên biến môi trường (hoặc `.env`) hơn `application.properties`. Khi chạy trên Tomcat từ IDE mà ứng dụng không tìm thấy `.env`, đặt biến `EMAIL_ENV_FILE` thành đường dẫn tuyệt đối đến tệp `.env`, hoặc khai báo trực tiếp các biến trên trong môi trường chạy. Với môi trường production, chỉ dùng biến môi trường/secret manager; không đóng gói hoặc commit `.env`.
+
+Để nhận webhook PayOS thật, URL triển khai phải truy cập được từ Internet và endpoint là `/onlinebookstore/api/payos-webhook`.
+
+### 5. Build WAR
+
+```powershell
+mvn clean package
+```
+
+Lệnh thành công tạo tệp `target/onlinebookstore.war`.
+
+> Nếu Maven báo `No compiler is provided`, máy đang dùng JRE thay vì JDK. Cài JDK 17 và đặt `JAVA_HOME` trỏ đến thư mục JDK, sau đó mở lại terminal/IDE.
+
+### 6. Triển khai lên Tomcat
+
+Sao chép WAR vào thư mục `webapps` của Tomcat rồi khởi động Tomcat:
+
+```powershell
+Copy-Item target/onlinebookstore.war "$env:CATALINA_HOME\webapps\"
+& "$env:CATALINA_HOME\bin\startup.bat"
+```
+
+Hoặc import dự án Maven vào Eclipse/IntelliJ và deploy artifact `onlinebookstore:war` lên Tomcat 10.1+.
+
+Mở ứng dụng tại [http://localhost:8080/onlinebookstore/](http://localhost:8080/onlinebookstore/). Nếu Tomcat dùng cổng khác, thay `8080` bằng cổng đã cấu hình.
+
+## Tài khoản và dữ liệu thử
+
+Script cơ sở dữ liệu chỉ tạo cấu trúc bảng, không tạo tài khoản hoặc sách mẫu. Bạn có thể đăng ký tài khoản khách hàng tại giao diện. Cột `users.usertype` dùng giá trị `2` cho khách hàng và `1` cho quản trị viên/người bán. Để cấp quyền quản trị cho một tài khoản thử đã tạo:
+
+```sql
+UPDATE users
+SET usertype = 1
+WHERE username = 'your-admin-username';
+```
+
+Tạo một tài khoản khách khác nếu vẫn cần kiểm thử luồng mua hàng.
+
+## Khắc phục sự cố
+
+| Triệu chứng | Cách xử lý |
+| --- | --- |
+| Không kết nối được MySQL | Kiểm tra dịch vụ MySQL đang chạy, database `onlinebookstore` đã được tạo và các khóa `db.*` trong `application.properties`. |
+| Lỗi `ClassNotFoundException: jakarta.servlet...` hoặc ứng dụng không deploy | Dùng Tomcat 10.1+ và build lại bằng JDK 17. |
+| Truy cập bị 404 | Xác nhận WAR đã nằm trong `webapps`, Tomcat đã giải nén nó và truy cập đúng context `/onlinebookstore/`. |
+| Email không gửi | Kiểm tra biến `SMTP_*`; với Gmail cần dùng App Password, không dùng mật khẩu tài khoản thông thường. |
+| Thanh toán PayOS thất bại | Kiểm tra ba biến `PAYOS_*`, URL trả về/hủy và webhook có thể truy cập công khai khi kiểm thử thanh toán thật. |
+
+## Lưu ý bảo mật
+
+- Không commit `.env`, mật khẩu MySQL, SMTP hoặc khóa PayOS. Tệp `.env` đã được git ignore.
+- Thay mọi thông tin xác thực mẫu trước khi triển khai thật.
+- Cơ chế mật khẩu hiện tại của dự án chưa phù hợp production; cần băm mật khẩu và áp dụng các biện pháp bảo mật ứng dụng trước khi đưa lên môi trường công khai.

@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1560" viewBox="0 0 1920 1560" role="img" aria-labelledby="title desc">
+  <title id="title">Sơ đồ tuần tự UC12.2 – Hủy đơn hàng ở trạng thái cho phép hủy</title>
+  <desc id="desc">Khách hàng hủy đơn PENDING qua OrdersServlet và OrderActionServlet. OrderServiceImpl kiểm tra chủ sở hữu và trạng thái, cập nhật CANCELLED, hoàn tồn theo code hiện tại trong transaction và xếp email nền.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#263445"/></marker>
+    <marker id="retArrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#667085"/></marker>
+    <style>
+      text{font-family:Arial,'Segoe UI',sans-serif;fill:#17212f}.title{font-size:27px;font-weight:700}.subtitle{font-size:15px;fill:#526174}.head{font-size:13px;font-weight:600}.msg{font-size:11px}.small{font-size:11px;fill:#465467}.frameLabel{font-size:12px;font-weight:700;fill:#344054}.life{stroke:#9aa7b5;stroke-width:1.1;stroke-dasharray:6 6}.call{stroke:#263445;stroke-width:1.35;fill:none;marker-end:url(#arrow)}.ret{stroke:#667085;stroke-width:1.2;stroke-dasharray:6 4;fill:none;marker-end:url(#retArrow)}.act{fill:#d9e8f7;stroke:#58718e;stroke-width:1}.frame{fill:#fbfcfe;stroke:#7b8795;stroke-width:1.1}.alert{fill:#fff7f6;stroke:#c77b72;stroke-width:1.1}.sep{stroke:#9aa7b5;stroke-width:1;stroke-dasharray:5 4}
+    </style>
+  </defs>
+  <rect width="1920" height="1530" fill="#fff"/>
+  <text x="45" y="42" class="title">Sơ đồ tuần tự UC12.2 – Hủy đơn hàng ở trạng thái cho phép hủy</text>
+  <text x="45" y="67" class="subtitle">Luồng khách hàng hủy đơn PENDING theo cấu trúc Servlet, Service và JDBC hiện tại</text>
+  <g text-anchor="middle">
+    <circle cx="80" cy="96" r="7" fill="none" stroke="#263445" stroke-width="1.4"/><path d="M80 103 V119 M68 109 H92 M80 119 L70 130 M80 119 L90 130" fill="none" stroke="#263445" stroke-width="1.4"/><text x="80" y="148" class="head">Khách hàng</text>
+    <rect x="215" y="88" width="110" height="42" rx="5" fill="#f0f4f8" stroke="#718096"/><text x="270" y="114" class="head">:Browser</text>
+    <rect x="390" y="82" width="160" height="54" rx="5" fill="#e8f1fb" stroke="#597796"/><text x="470" y="105" class="head">:OrdersServlet</text><text x="470" y="124" class="small">/orders</text>
+    <rect x="600" y="82" width="160" height="54" rx="5" fill="#e8f1fb" stroke="#597796"/><text x="680" y="105" class="head">:OrderActionServlet</text><text x="680" y="124" class="small">/orders-action</text>
+    <rect x="815" y="88" width="130" height="42" rx="5" fill="#f0f4f8" stroke="#718096"/><text x="880" y="114" class="head">:StoreUtil</text>
+    <rect x="980" y="88" width="120" height="42" rx="5" fill="#f0f4f8" stroke="#718096"/><text x="1040" y="114" class="head">:HttpSession</text>
+    <rect x="1150" y="82" width="180" height="54" rx="5" fill="#e8f1fb" stroke="#597796"/><text x="1240" y="105" class="head">:OrderServiceImpl</text><text x="1240" y="124" class="small">JDBC transaction</text>
+    <rect x="1420" y="88" width="120" height="42" rx="5" fill="#f0f4f8" stroke="#718096"/><text x="1480" y="114" class="head">:MySQL</text>
+    <rect x="1600" y="82" width="160" height="54" rx="5" fill="#e8f1fb" stroke="#597796"/><text x="1680" y="105" class="head">:OrderEmailService</text><text x="1680" y="124" class="small">ExecutorService</text>
+    <rect x="1810" y="88" width="90" height="42" rx="5" fill="#fff4df" stroke="#b38a3d"/><text x="1855" y="114" class="head">:SMTP</text>
+  </g>
+  <g class="life"><line x1="80" y1="150" x2="80" y2="1400"/><line x1="270" y1="130" x2="270" y2="1400"/><line x1="470" y1="136" x2="470" y2="1400"/><line x1="680" y1="136" x2="680" y2="1400"/><line x1="880" y1="130" x2="880" y2="1400"/><line x1="1040" y1="130" x2="1040" y2="1400"/><line x1="1240" y1="136" x2="1240" y2="1400"/><line x1="1480" y1="130" x2="1480" y2="1400"/><line x1="1680" y1="136" x2="1680" y2="1400"/><line x1="1855" y1="130" x2="1855" y2="1400"/></g>
+  <rect x="464" y="180" width="12" height="320" class="act"/><rect x="674" y="540" width="12" height="760" class="act"/><rect x="874" y="585" width="12" height="60" class="act"/><rect x="1234" y="700" width="12" height="590" class="act"/><rect x="1474" y="730" width="12" height="420" class="act"/><rect x="1674" y="1158" width="12" height="112" class="act"/>
+  <!-- Load order history -->
+  <text x="80" y="174" class="msg">1. Mở lịch sử đơn hàng</text><path d="M80 180 H270" class="call"/>
+  <text x="270" y="202" class="msg">2. GET /orders</text><path d="M270 208 H470" class="call"/>
+  <text x="470" y="230" class="msg">3. isLoggedIn(CUSTOMER/SELLER)</text><path d="M470 236 H880" class="call"/>
+  <text x="880" y="255" class="msg">Đọc role</text><path d="M880 261 H1040" class="call"/>
+  <text x="1040" y="280" class="msg">Role phiên</text><path d="M1040 286 H880" class="ret"/>
+  <text x="880" y="305" class="msg">Kết quả xác thực</text><path d="M880 311 H470" class="ret"/>
+  <text x="470" y="335" class="msg">4. getOrdersByUsername(username, status, page, 10)</text><path d="M470 341 H1240" class="call"/>
+  <text x="1240" y="363" class="msg">5. SELECT orders theo username / bộ lọc</text><path d="M1240 369 H1480" class="call"/>
+  <text x="1480" y="390" class="msg">Orders + details</text><path d="M1480 396 H1240" class="ret"/>
+  <text x="1240" y="418" class="msg">Danh sách đơn khách hàng</text><path d="M1240 424 H470" class="ret"/>
+  <text x="470" y="448" class="msg">6. Render lịch sử; nút hủy hiện với PENDING</text><path d="M470 454 H270" class="ret"/>
+  <text x="270" y="476" class="msg">Lịch sử + modal hủy</text><path d="M270 482 H80" class="ret"/>
+  <!-- Submit cancellation -->
+  <text x="80" y="520" class="msg">7. Chọn lý do và xác nhận hủy</text><path d="M80 526 H270" class="call"/>
+  <text x="270" y="548" class="msg">8. POST action=cancel, orderId, reason</text><path d="M270 554 H680" class="call"/>
+  <text x="680" y="576" class="msg">9. Kiểm tra đăng nhập + lấy username</text><path d="M680 582 H880" class="call"/>
+  <text x="880" y="601" class="msg">Role / username</text><path d="M880 607 H1040" class="call"/>
+  <text x="1040" y="626" class="msg">Dữ liệu phiên</text><path d="M1040 632 H880" class="ret"/>
+  <text x="880" y="651" class="msg">Kết quả</text><path d="M880 657 H680" class="ret"/>
+  <text x="680" y="681" class="msg">10. cancelOrderByCustomer(orderId, username, reason)</text><path d="M680 687 H1240" class="call"/>
+  <text x="1240" y="709" class="msg">11. SELECT username FROM users (chuẩn hóa)</text><path d="M1240 715 H1480" class="call"/>
+  <text x="1480" y="736" class="msg">username</text><path d="M1480 742 H1240" class="ret"/>
+  <text x="1240" y="764" class="msg">12. SELECT orders WHERE order_id = ?</text><path d="M1240 770 H1480" class="call"/>
+  <text x="1480" y="791" class="msg">Order, status</text><path d="M1480 797 H1240" class="ret"/>
+  <text x="1240" y="819" class="msg">13. SELECT order_details JOIN books</text><path d="M1240 825 H1480" class="call"/>
+  <text x="1480" y="846" class="msg">Sách + quantity</text><path d="M1480 852 H1240" class="ret"/>
+  <text x="1240" y="875" class="msg">14. Kiểm tra tồn tại, chủ sở hữu, status=PENDING</text><path d="M1240 881 H1280 V893 H1240" class="call"/>
+  <text x="1240" y="919" class="msg">15. con.setAutoCommit(false)</text><path d="M1240 925 H1280 V937 H1240" class="call"/>
+  <text x="1240" y="963" class="msg">16. UPDATE orders → CANCELLED, CUSTOMER, reason, time</text><path d="M1240 969 H1480" class="call"/>
+  <!-- outcome frame -->
+  <rect x="1110" y="995" width="775" height="290" rx="2" class="frame"/>
+  <text x="1125" y="1017" class="frameLabel">alt [đơn vẫn PENDING và cập nhật thành công]</text>
+  <path d="M1240 1045 H1480" class="call"/><text x="1240" y="1038" class="msg">17. UPDATE books SET quantity = quantity + ?</text>
+  <text x="1240" y="1082" class="msg">18. COMMIT transaction</text><path d="M1240 1088 H1480" class="call"/>
+  <text x="1240" y="1127" class="msg">19. sendOrderCancelledEmail(...)</text><path d="M1240 1133 H1680" class="call"/>
+  <text x="1680" y="1152" class="msg">Đưa email vào executor nền</text><path d="M1680 1158 H1240" class="ret"/>
+  <text x="1680" y="1182" class="msg">20. Worker gửi email</text><path d="M1680 1188 H1855" class="call"/>
+  <text x="1855" y="1207" class="msg">Kết quả SMTP</text><path d="M1855 1213 H1680" class="ret"/>
+  <line x1="1110" y1="1222" x2="1885" y2="1222" class="sep"/>
+  <text x="1125" y="1244" class="frameLabel">else [đơn không còn PENDING]</text>
+  <text x="1240" y="1270" class="msg">ROLLBACK; trả false (không hoàn tồn)</text>
+  <path d="M1240 1276 H1480" class="ret"/>
+  <text x="680" y="1310" class="msg">21. Trả kết quả hủy</text><path d="M1240 1316 H680" class="ret"/>
+  <text x="680" y="1337" class="msg">Redirect /orders?status=CANCELLED hoặc /orders</text><path d="M680 1343 H270" class="ret"/>
+  <text x="270" y="1364" class="msg">22. Hiển thị trạng thái kết quả</text><path d="M270 1370 H80" class="ret"/>
+  <text x="80" y="1392" class="msg">Kết quả hủy</text>
+  <rect x="45" y="1410" width="1830" height="112" rx="5" class="alert"/>
+  <text x="64" y="1445" class="frameLabel">Lưu ý khi đối chiếu code và đặc tả</text>
+  <line x1="64" y1="1455" x2="1855" y2="1455" class="sep"/>
+  <text x="68" y="1477" class="small">Code hiện hoàn tồn khi khách hủy PENDING; luồng PayOS chỉ trừ tồn sau xác nhận thanh toán nên thao tác này có thể làm tăng tồn sai.</text>
+  <text x="68" y="1500" class="small">Theo đặc tả UC12.2, hủy PENDING không hoàn tồn. Email được xếp sau commit và gửi bất đồng bộ qua OrderEmailService.</text>
+  <text x="68" y="1523" class="small">Đơn không tồn tại, không thuộc khách hàng hoặc không ở PENDING sẽ bị từ chối trước khi bắt đầu transaction.</text>
+</svg>

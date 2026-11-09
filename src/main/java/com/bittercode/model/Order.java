@@ -9,6 +9,7 @@ public class Order implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String orderId;
+    private Long orderCode;
     private String username;
     private Date orderDate;
     private double totalAmount;
@@ -39,6 +40,14 @@ public class Order implements Serializable {
 
     public void setOrderId(String orderId) {
         this.orderId = orderId;
+    }
+
+    public Long getOrderCode() {
+        return orderCode;
+    }
+
+    public void setOrderCode(Long orderCode) {
+        this.orderCode = orderCode;
     }
 
     public String getUsername() {

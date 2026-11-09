@@ -202,4 +202,43 @@
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>
+
+	<!-- PayOS VietQR Payment Servlets -->
+	<servlet>
+		<servlet-name>CreateQRPaymentServlet</servlet-name>
+		<servlet-class>servlets.CreateQRPaymentServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>CreateQRPaymentServlet</servlet-name>
+		<url-pattern>/create-qr-payment</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>PayOSWebhookServlet</servlet-name>
+		<servlet-class>servlets.PayOSWebhookServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>PayOSWebhookServlet</servlet-name>
+		<url-pattern>/api/payos-webhook</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>CheckOrderStatusServlet</servlet-name>
+		<servlet-class>servlets.CheckOrderStatusServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>CheckOrderStatusServlet</servlet-name>
+		<url-pattern>/api/check-order-status</url-pattern>
+	</servlet-mapping>
+
+	<!-- DEBUG ONLY — Xóa trước khi deploy production -->
+	<servlet>
+		<servlet-name>PayOSDebugServlet</servlet-name>
+		<servlet-class>servlets.PayOSDebugServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>PayOSDebugServlet</servlet-name>
+		<url-pattern>/payos-debug</url-pattern>
+	</servlet-mapping>
+
 </web-app>

@@ -146,7 +146,7 @@
 
 			<div class="checkout-form-container">
 				<div id="checkoutError" class="checkout-error" role="alert" aria-live="polite"></div>
-				<form action="pay" method="post" id="checkoutForm" onsubmit="return validateCheckoutForm()">
+				<form action="create-qr-payment" method="post" id="checkoutForm" onsubmit="return validateCheckoutForm()">
 					<div class="checkout-form-grid">
 						<!-- Billing Address Column -->
 						<div>
@@ -249,35 +249,63 @@
 						<!-- Payment Details Column -->
 						<div>
 							<h3 class="checkout-section-title"><i class="fa fa-credit-card"></i> Phương thức thanh toán</h3>
-							<label style="font-weight:600; font-size:0.88rem;">Thẻ được chấp nhận</label>
-							<div class="card-icons-wrap">
-								<i class="fa fa-cc-visa" style="color: #1a1f71;"></i>
-								<i class="fa fa-cc-amex" style="color: #006fcf;"></i>
-								<i class="fa fa-cc-mastercard" style="color: #eb001b;"></i>
-								<i class="fa fa-cc-discover" style="color: #ff6000;"></i>
+							
+							<!-- Method Selector -->
+							<div style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px;">
+								<label style="display:flex; align-items:flex-start; gap:12px; padding:14px 16px; border:2px solid var(--accent-primary); border-radius:12px; background:#fffbf5; cursor:pointer; transition:all 0.2s ease;">
+									<input type="radio" name="paymentType" id="methodVietQR" value="vietqr" checked onchange="switchPaymentMethod('vietqr')" style="margin-top:4px; accent-color:var(--accent-primary);">
+									<div style="flex:1;">
+										<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+											<strong style="color:var(--text-primary); font-size:0.96rem;">&#9889; Mã VietQR động (PayOS)</strong>
+											<span style="background:#16a34a; color:#fff; font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:999px;">Tự động duyệt</span>
+										</div>
+										<p style="margin:4px 0 0; font-size:0.84rem; color:var(--text-secondary); line-height:1.4;">
+											Quét mã QR qua app ngân hàng hoặc MoMo. Hệ thống tự động xác nhận đơn hàng ngay khi nhận tiền.
+										</p>
+									</div>
+								</label>
+
+								<label style="display:flex; align-items:flex-start; gap:12px; padding:14px 16px; border:1px solid rgba(197, 137, 64, 0.3); border-radius:12px; background:#fff; cursor:pointer; transition:all 0.2s ease;">
+									<input type="radio" name="paymentType" id="methodCard" value="card" onchange="switchPaymentMethod('card')" style="margin-top:4px; accent-color:var(--accent-primary);">
+									<div style="flex:1;">
+										<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+											<strong style="color:var(--text-primary); font-size:0.96rem;"><i class="fa fa-credit-card"></i> Thẻ tín dụng / Ghi nợ quốc tế</strong>
+											<div class="card-icons-wrap" style="margin-bottom:0; font-size:18px;">
+												<i class="fa fa-cc-visa" style="color:#1a1f71;"></i>
+												<i class="fa fa-cc-mastercard" style="color:#eb001b;"></i>
+											</div>
+										</div>
+										<p style="margin:4px 0 0; font-size:0.84rem; color:var(--text-secondary); line-height:1.4;">
+											Hỗ trợ thẻ Visa, MasterCard, JCB hoặc Amex.
+										</p>
+									</div>
+								</label>
 							</div>
 
-							<div class="checkout-input-field">
-								<label for="cname">Tên in trên thẻ</label>
-								<input type="text" id="cname" name="cardname" placeholder="NGUYEN VAN A" autocomplete="cc-name" minlength="2" maxlength="100" required>
-							</div>
-							<div class="checkout-input-field">
-								<label for="ccnum">Số thẻ tín dụng</label>
-								<input type="text" id="ccnum" name="cardnumber" placeholder="1111 2222 3333 4444" inputmode="numeric" autocomplete="cc-number" maxlength="23" required>
-							</div>
-							<div class="checkout-row-2">
+							<!-- Card Fields (Hidden by default when VietQR is selected) -->
+							<div id="cardFieldsContainer" style="display:none; padding:16px; background:#fbf8f3; border-radius:12px; border:1px solid rgba(197, 137, 64, 0.2); margin-bottom:16px;">
 								<div class="checkout-input-field">
-									<label for="expmonth">Tháng hết hạn</label>
-									<input type="text" id="expmonth" name="expmonth" placeholder="09" inputmode="numeric" pattern="[0-9]{1,2}" maxlength="2" autocomplete="cc-exp-month" required>
+									<label for="cname">Tên in trên thẻ</label>
+									<input type="text" id="cname" name="cardname" placeholder="NGUYEN VAN A" autocomplete="cc-name" minlength="2" maxlength="100">
 								</div>
 								<div class="checkout-input-field">
-									<label for="expyear">Năm hết hạn</label>
-									<input type="text" id="expyear" name="expyear" placeholder="2026" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="cc-exp-year" required>
+									<label for="ccnum">Số thẻ tín dụng</label>
+									<input type="text" id="ccnum" name="cardnumber" placeholder="1111 2222 3333 4444" inputmode="numeric" autocomplete="cc-number" maxlength="23">
 								</div>
-							</div>
-							<div class="checkout-input-field">
-								<label for="cvv">Mã CVV</label>
-								<input type="password" id="cvv" name="cvv" placeholder="352" inputmode="numeric" autocomplete="cc-csc" pattern="[0-9]{3,4}" maxlength="4" required>
+								<div class="checkout-row-2">
+									<div class="checkout-input-field">
+										<label for="expmonth">Tháng hết hạn</label>
+										<input type="text" id="expmonth" name="expmonth" placeholder="09" inputmode="numeric" pattern="[0-9]{1,2}" maxlength="2" autocomplete="cc-exp-month">
+									</div>
+									<div class="checkout-input-field">
+										<label for="expyear">Năm hết hạn</label>
+										<input type="text" id="expyear" name="expyear" placeholder="2026" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="cc-exp-year">
+									</div>
+								</div>
+								<div class="checkout-input-field" style="margin-bottom:0;">
+									<label for="cvv">Mã CVV</label>
+									<input type="password" id="cvv" name="cvv" placeholder="352" inputmode="numeric" autocomplete="cc-csc" pattern="[0-9]{3,4}" maxlength="4">
+								</div>
 							</div>
 						</div>
 					</div>
@@ -293,7 +321,7 @@
 							<strong id="checkoutTotal" style="display:block; margin-top:4px; color:var(--accent-hover);">Tổng thanh toán: --</strong>
 							<span style="font-size:0.86rem; color:var(--text-secondary);">Chúng tôi sẽ gửi email xác nhận ngay sau khi đặt hàng.</span>
 						</div>
-						<button type="submit" class="btn">Đặt hàng ngay &rarr;</button>
+						<button type="submit" id="btnSubmitOrder" class="btn">Tạo mã VietQR thanh toán &rarr;</button>
 					</div>
 				</form>
 			</div>
@@ -351,7 +379,70 @@ function isValidCardNumber(number) {
   return sum % 10 === 0;
 }
 
+function switchPaymentMethod(method) {
+  const form = document.getElementById('checkoutForm');
+  const cardFields = document.getElementById('cardFieldsContainer');
+  const btnSubmit = document.getElementById('btnSubmitOrder');
+  const cardInputs = ['cname', 'ccnum', 'expmonth', 'expyear', 'cvv'];
+
+  if (method === 'vietqr') {
+    form.action = 'create-qr-payment';
+    cardFields.style.display = 'none';
+    btnSubmit.innerHTML = 'Tạo mã VietQR thanh toán &rarr;';
+    cardInputs.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.required = false; }
+    });
+  } else {
+    form.action = 'pay';
+    cardFields.style.display = 'block';
+    btnSubmit.innerHTML = 'Xác nhận thanh toán thẻ &rarr;';
+    cardInputs.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.required = true; }
+    });
+  }
+}
+
 function validateCheckoutForm() {
+  const city = document.getElementById('city').value;
+  const district = document.getElementById('state').value;
+  const isCard = document.getElementById('methodCard') && document.getElementById('methodCard').checked;
+
+  document.getElementById('checkoutError').style.display = 'none';
+
+  if (!city || !district) {
+    showCheckoutError('Vui lòng chọn đầy đủ tỉnh/thành phố và quận/huyện nhận hàng.');
+    return false;
+  }
+
+  if (isCard) {
+    const cardNumber = document.getElementById('ccnum');
+    const month = Number(document.getElementById('expmonth').value);
+    const year = Number(document.getElementById('expyear').value);
+    const cvv = document.getElementById('cvv').value;
+
+    if (!isValidCardNumber(cardNumber.value)) {
+      showCheckoutError('Số thẻ không hợp lệ. Vui lòng kiểm tra lại số thẻ.');
+      cardNumber.focus();
+      return false;
+    }
+    const today = new Date();
+    if (!Number.isInteger(month) || month < 1 || month > 12 || !Number.isInteger(year) || year < today.getFullYear() || (year === today.getFullYear() && month < today.getMonth() + 1)) {
+      showCheckoutError('Thẻ đã hết hạn hoặc ngày hết hạn không hợp lệ.');
+      return false;
+    }
+    if (!/^\d{3,4}$/.test(cvv)) {
+      showCheckoutError('Mã CVV phải gồm 3 hoặc 4 chữ số.');
+      return false;
+    }
+    cardNumber.value = cardNumber.value.replace(/\D/g, '');
+  }
+
+  return true;
+}
+
+function _unused_old_validateCheckoutForm() {
   const city = document.getElementById('city').value;
   const district = document.getElementById('state').value;
   const cardNumber = document.getElementById('ccnum');

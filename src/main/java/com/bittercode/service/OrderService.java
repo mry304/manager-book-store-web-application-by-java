@@ -12,7 +12,15 @@ public interface OrderService {
     public String createOrder(String username, List<Cart> cartItems, double totalAmount,
                               String shippingEmail, String shippingAddress, String paymentMethod) throws StoreException;
 
+    public String createOrderWithCode(String username, List<Cart> cartItems, double totalAmount,
+                                      String shippingEmail, String shippingAddress, String paymentMethod,
+                                      long orderCode) throws StoreException;
+
     public Order getOrderById(String orderId) throws StoreException;
+
+    public Order getOrderByOrderCode(long orderCode) throws StoreException;
+
+    public boolean confirmPaymentAndDeductStock(long orderCode) throws StoreException;
 
     public List<Order> getOrdersByUsername(String username) throws StoreException;
 
