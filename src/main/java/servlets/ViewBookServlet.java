@@ -267,21 +267,24 @@ public class ViewBookServlet extends HttpServlet {
         String kicker = kickers[Math.abs(bCode.hashCode()) % kickers.length];
 
         return "<article class=\"book-listing\">"
+                + "  <a href=\"book-detail?barcode=" + bCode + "\" style=\"text-decoration:none; color:inherit;\">"
                 + "  <div class=\"book-standing-3d\" style=\"--book-color:" + bookColor + "\">"
                 + "    <div class=\"book-sheen-glare\"></div>"
                 + "    <span class=\"book-kicker\">" + kicker + "</span>"
                 + "    <span class=\"book-title\">" + escapeHtml(book.getName()) + "</span>"
                 + "    <span class=\"book-author\">" + escapeHtml(book.getAuthor()) + "</span>"
                 + "  </div>"
+                + "  </a>"
                 + "  <div class=\"listing-copy\">"
                 + "    <div style=\"display:flex; align-items:center; gap:8px; margin-bottom:4px;\">"
                 + "      <div class=\"stars\">&#9733;&#9733;&#9733;&#9733;&#9733;</div>"
                 + "      <span class=\"badge-tag-star\" style=\"font-size:0.62rem; padding:1px 6px;\">4.9</span>"
                 + "    </div>"
-                + "    <h3 title=\"" + escapeHtml(book.getName()) + "\">" + escapeHtml(book.getName()) + "</h3>"
+                + "    <h3 title=\"" + escapeHtml(book.getName()) + "\"><a href=\"book-detail?barcode=" + bCode + "\" style=\"text-decoration:none; color:inherit;\">" + escapeHtml(book.getName()) + "</a></h3>"
                 + "    <p class=\"author-text\">" + escapeHtml(book.getAuthor()) + "</p>"
                 + "    <div class=\"price-tag\">" + StoreUtil.formatPrice(book.getPrice()) + "</div>"
                 + button
+                + "    <a href=\"book-detail?barcode=" + bCode + "\" class=\"btn-pill-buy\" style=\"margin-top:8px; font-size:0.8rem; padding:6px 14px;\">&#128214; Xem chi ti&#7871;t</a>"
                 + "  </div>"
                 + "</article>";
     }

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Context docBase="D:\doanchuyennganh\manager-book-store-web-application-by-java\WebContent">
+  <Resources cacheMaxSize="10240">
+    <PreResources base="D:/doanchuyennganh/manager-book-store-web-application-by-java/target/classes" className="org.apache.catalina.webresources.DirResourceSet" webAppMount="/WEB-INF/classes"/>
+    <PostResources base="C:/Users/Admin/.m2/repository/org/postgresql/postgresql/42.3.7/postgresql-42.3.7.jar" className="org.apache.catalina.webresources.FileResourceSet" webAppMount="/WEB-INF/lib/postgresql-42.3.7.jar"/>
+    <PostResources base="C:/Users/Admin/.m2/repository/org/checkerframework/checker-qual/3.5.0/checker-qual-3.5.0.jar" className="org.apache.catalina.webresources.FileResourceSet" webAppMount="/WEB-INF/lib/checker-qual-3.5.0.jar"/>
+    <PostResources base="C:/Users/Admin/.m2/repository/mysql/mysql-connector-java/8.0.28/mysql-connector-java-8.0.28.jar" className="org.apache.catalina.webresources.FileResourceSet" webAppMount="/WEB-INF/lib/mysql-connector-java-8.0.28.jar"/>
+    <PostResources base="C:/Users/Admin/.m2/repository/com/google/protobuf/protobuf-java/3.11.4/protobuf-java-3.11.4.jar" className="org.apache.catalina.webresources.FileResourceSet" webAppMount="/WEB-INF/lib/protobuf-java-3.11.4.jar"/>
+    <PostResources base="C:/Users/Admin/.m2/repository/io/github/cdimascio/dotenv-java/3.2.0/dotenv-java-3.2.0.jar" className="org.apache.catalina.webresources.FileResourceSet" webAppMount="/WEB-INF/lib/dotenv-java-3.2.0.jar"/>
+    <PostResources base="C:/Users/Admin/.m2/repository/jakarta/mail/jakarta.mail-api/2.1.3/jakarta.mail-api-2.1.3.jar" className="org.apache.catalina.webresources.FileResourceSet" webAppMount="/WEB-INF/lib/jakarta.mail-api-2.1.3.jar"/>
+    <PostResources base="C:/Users/Admin/.m2/repository/jakarta/activation/jakarta.activation-api/2.1.3/jakarta.activation-api-2.1.3.jar" className="org.apache.catalina.webresources.FileResourceSet" webAppMount="/WEB-INF/lib/jakarta.activation-api-2.1.3.jar"/>
+    <PostResources base="C:/Users/Admin/.m2/repository/org/eclipse/angus/angus-mail/2.0.4/angus-mail-2.0.4.jar" className="org.apache.catalina.webresources.FileResourceSet" webAppMount="/WEB-INF/lib/angus-mail-2.0.4.jar"/>
+    <PostResources base="C:/Users/Admin/.m2/repository/org/eclipse/angus/angus-activation/2.0.2/angus-activation-2.0.2.jar" className="org.apache.catalina.webresources.FileResourceSet" webAppMount="/WEB-INF/lib/angus-activation-2.0.2.jar"/>
+    <PostResources base="C:/Users/Admin/.m2/repository/vn/payos/payos-java/1.0.3/payos-java-1.0.3.jar" className="org.apache.catalina.webresources.FileResourceSet" webAppMount="/WEB-INF/lib/payos-java-1.0.3.jar"/>
+    <PostResources base="C:/Users/Admin/.m2/repository/org/apache/httpcomponents/client5/httpclient5/5.1.4/httpclient5-5.1.4.jar" className="org.apache.catalina.webresources.FileResourceSet" webAppMount="/WEB-INF/lib/httpclient5-5.1.4.jar"/>
+    <PostResources base="C:/Users/Admin/.m2/repository/org/apache/httpcomponents/core5/httpcore5/5.1.5/httpcore5-5.1.5.jar" className="org.apache.catalina.webresources.FileResourceSet" webAppMount="/WEB-INF/lib/httpcore5-5.1.5.jar"/>
+    <PostResources base="C:/Users/Admin/.m2/repository/org/apache/httpcomponents/core5/httpcore5-h2/5.1.5/httpcore5-h2-5.1.5.jar" className="org.apache.catalina.webresources.FileResourceSet" webAppMount="/WEB-INF/lib/httpcore5-h2-5.1.5.jar"/>
+    <PostResources base="C:/Users/Admin/.m2/repository/org/slf4j/slf4j-api/1.7.25/slf4j-api-1.7.25.jar" className="org.apache.catalina.webresources.FileResourceSet" webAppMount="/WEB-INF/lib/slf4j-api-1.7.25.jar"/>
+    <PostResources base="C:/Users/Admin/.m2/repository/commons-codec/commons-codec/1.15/commons-codec-1.15.jar" className="org.apache.catalina.webresources.FileResourceSet" webAppMount="/WEB-INF/lib/commons-codec-1.15.jar"/>
+    <PostResources base="C:/Users/Admin/.m2/repository/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" className="org.apache.catalina.webresources.FileResourceSet" webAppMount="/WEB-INF/lib/lombok-1.18.30.jar"/>
+    <PostResources base="C:/Users/Admin/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.15.2/jackson-databind-2.15.2.jar" className="org.apache.catalina.webresources.FileResourceSet" webAppMount="/WEB-INF/lib/jackson-databind-2.15.2.jar"/>
+    <PostResources base="C:/Users/Admin/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.15.2/jackson-annotations-2.15.2.jar" className="org.apache.catalina.webresources.FileResourceSet" webAppMount="/WEB-INF/lib/jackson-annotations-2.15.2.jar"/>
+    <PostResources base="C:/Users/Admin/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.15.2/jackson-core-2.15.2.jar" className="org.apache.catalina.webresources.FileResourceSet" webAppMount="/WEB-INF/lib/jackson-core-2.15.2.jar"/>
+  </Resources>
+</Context>

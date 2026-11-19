@@ -23,7 +23,9 @@ public class BookServiceImpl implements BookService {
     private static final String deleteBookByIdQuery = "DELETE FROM " + BooksDBConstants.TABLE_BOOK + "  WHERE "
             + BooksDBConstants.COLUMN_BARCODE + "=?";
 
-    private static final String addBookQuery = "INSERT INTO " + BooksDBConstants.TABLE_BOOK + " (barcode, name, author, price, quantity) VALUES(?,?,?,?,?)";
+    private static final String addBookQuery = "INSERT INTO " + BooksDBConstants.TABLE_BOOK
+            + " (barcode, name, author, price, quantity, publisher, image_url, description, category_id, status)"
+            + " VALUES(?,?,?,?,?,?,?,?,?,?)";
 
     private static final String updateBookQtyByIdQuery = "UPDATE " + BooksDBConstants.TABLE_BOOK + " SET "
             + BooksDBConstants.COLUMN_QUANTITY + "=? WHERE " + BooksDBConstants.COLUMN_BARCODE
@@ -33,9 +35,45 @@ public class BookServiceImpl implements BookService {
             + BooksDBConstants.COLUMN_NAME + "=? , "
             + BooksDBConstants.COLUMN_AUTHOR + "=?, "
             + BooksDBConstants.COLUMN_PRICE + "=?, "
-            + BooksDBConstants.COLUMN_QUANTITY + "=? "
+            + BooksDBConstants.COLUMN_QUANTITY + "=?, "
+            + BooksDBConstants.COLUMN_PUBLISHER + "=?, "
+            + BooksDBConstants.COLUMN_IMAGE_URL + "=?, "
+            + BooksDBConstants.COLUMN_DESCRIPTION + "=?, "
+            + BooksDBConstants.COLUMN_CATEGORY_ID + "=?, "
+            + BooksDBConstants.COLUMN_STATUS + "=? "
             + "  WHERE " + BooksDBConstants.COLUMN_BARCODE
             + "=?";
+
+    /**
+     * Tiện ích: đọc tất cả cột của 1 ResultSet row thành đối tượng Book,
+     * bao gồm cả các cột mới (publisher, image_url, description, category_id, status).
+     * Sử dụng tên cột thay vì chỉ số để tương thích khi schema thay đổi.
+     */
+    private Book mapRow(ResultSet rs) throws SQLException {
+        Book book = new Book(
+                rs.getString(BooksDBConstants.COLUMN_BARCODE),
+                rs.getString(BooksDBConstants.COLUMN_NAME),
+                rs.getString(BooksDBConstants.COLUMN_AUTHOR),
+                rs.getDouble(BooksDBConstants.COLUMN_PRICE),
+                rs.getInt(BooksDBConstants.COLUMN_QUANTITY));
+        // Đọc các cột mở rộng — bỏ qua nếu cột chưa tồn tại
+        try {
+            book.setPublisher(rs.getString(BooksDBConstants.COLUMN_PUBLISHER));
+        } catch (SQLException ignored) { }
+        try {
+            book.setImageUrl(rs.getString(BooksDBConstants.COLUMN_IMAGE_URL));
+        } catch (SQLException ignored) { }
+        try {
+            book.setDescription(rs.getString(BooksDBConstants.COLUMN_DESCRIPTION));
+        } catch (SQLException ignored) { }
+        try {
+            book.setCategoryId(rs.getInt(BooksDBConstants.COLUMN_CATEGORY_ID));
+        } catch (SQLException ignored) { }
+        try {
+            book.setStatus(rs.getString(BooksDBConstants.COLUMN_STATUS));
+        } catch (SQLException ignored) { }
+        return book;
+    }
 
     @Override
     public Book getBookById(String bookId) throws StoreException {
@@ -47,13 +85,7 @@ public class BookServiceImpl implements BookService {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                String bCode = rs.getString(1);
-                String bName = rs.getString(2);
-                String bAuthor = rs.getString(3);
-                int bPrice = rs.getInt(4);
-                int bQty = rs.getInt(5);
-
-                book = new Book(bCode, bName, bAuthor, bPrice, bQty);
+                book = mapRow(rs);
             }
         } catch (SQLException e) {
 
@@ -71,14 +103,7 @@ public class BookServiceImpl implements BookService {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                String bCode = rs.getString(1);
-                String bName = rs.getString(2);
-                String bAuthor = rs.getString(3);
-                int bPrice = rs.getInt(4);
-                int bQty = rs.getInt(5);
-
-                Book book = new Book(bCode, bName, bAuthor, bPrice, bQty);
-                books.add(book);
+                books.add(mapRow(rs));
             }
         } catch (SQLException e) {
 
@@ -98,7 +123,7 @@ public class BookServiceImpl implements BookService {
             ps.setInt(2, (safePage - 1) * safePageSize);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    books.add(new Book(rs.getString(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getInt(5)));
+                    books.add(mapRow(rs));
                 }
             }
         } catch (SQLException e) {
@@ -126,15 +151,15 @@ public class BookServiceImpl implements BookService {
 
         String query;
         if ("BESTSELLER".equals(normalized)) {
-            query = "SELECT b.barcode, b.name, b.author, b.price, b.quantity FROM books b "
+            query = "SELECT b.* FROM books b "
                     + "JOIN order_details od ON od.book_barcode = b.barcode "
                     + "JOIN orders o ON o.order_id = od.order_id AND o.status = 'COMPLETED' "
-                    + "GROUP BY b.barcode, b.name, b.author, b.price, b.quantity "
+                    + "GROUP BY b.barcode "
                     + "ORDER BY SUM(od.quantity) DESC, MAX(o.order_date) DESC LIMIT ? OFFSET ?";
         } else if ("NEW".equals(normalized)) {
-            query = "SELECT barcode, name, author, price, quantity FROM books ORDER BY created_at DESC, barcode DESC LIMIT ? OFFSET ?";
+            query = "SELECT * FROM books ORDER BY created_at DESC, barcode DESC LIMIT ? OFFSET ?";
         } else {
-            query = "SELECT barcode, name, author, price, quantity FROM books WHERE quantity > 0 ORDER BY quantity DESC, created_at DESC LIMIT ? OFFSET ?";
+            query = "SELECT * FROM books WHERE quantity > 0 ORDER BY quantity DESC, created_at DESC LIMIT ? OFFSET ?";
         }
         return executeBookPageQuery(query, page, pageSize);
     }
@@ -166,7 +191,7 @@ public class BookServiceImpl implements BookService {
             ps.setInt(1, Math.max(1, pageSize));
             ps.setInt(2, (Math.max(1, page) - 1) * Math.max(1, pageSize));
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) books.add(new Book(rs.getString(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getInt(5)));
+                while (rs.next()) books.add(mapRow(rs));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -208,6 +233,11 @@ public class BookServiceImpl implements BookService {
             ps.setString(3, book.getAuthor());
             ps.setDouble(4, book.getPrice());
             ps.setInt(5, book.getQuantity());
+            ps.setString(6, book.getPublisher());
+            ps.setString(7, book.getImageUrl());
+            ps.setString(8, book.getDescription());
+            ps.setInt(9, book.getCategoryId());
+            ps.setString(10, book.getStatus() != null ? book.getStatus() : "ACTIVE");
             int k = ps.executeUpdate();
             if (k == 1) {
                 responseCode = ResponseCode.SUCCESS.name();
@@ -262,14 +292,7 @@ public class BookServiceImpl implements BookService {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                String bCode = rs.getString(1);
-                String bName = rs.getString(2);
-                String bAuthor = rs.getString(3);
-                int bPrice = rs.getInt(4);
-                int bQty = rs.getInt(5);
-
-                Book book = new Book(bCode, bName, bAuthor, bPrice, bQty);
-                books.add(book);
+                books.add(mapRow(rs));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -287,7 +310,12 @@ public class BookServiceImpl implements BookService {
             ps.setString(2, book.getAuthor());
             ps.setDouble(3, book.getPrice());
             ps.setInt(4, book.getQuantity());
-            ps.setString(5, book.getBarcode());
+            ps.setString(5, book.getPublisher());
+            ps.setString(6, book.getImageUrl());
+            ps.setString(7, book.getDescription());
+            ps.setInt(8, book.getCategoryId());
+            ps.setString(9, book.getStatus() != null ? book.getStatus() : "ACTIVE");
+            ps.setString(10, book.getBarcode());
             ps.executeUpdate();
             responseCode = ResponseCode.SUCCESS.name();
         } catch (Exception e) {

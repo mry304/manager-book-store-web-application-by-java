@@ -231,6 +231,26 @@
 		<url-pattern>/api/check-order-status</url-pattern>
 	</servlet-mapping>
 
+	<!-- Admin Review Management Servlet -->
+	<servlet>
+		<servlet-name>AdminReviewServlet</servlet-name>
+		<servlet-class>servlets.AdminReviewServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AdminReviewServlet</servlet-name>
+		<url-pattern>/admin-reviews</url-pattern>
+	</servlet-mapping>
+
+	<!-- Book Detail & Review Servlet (UC03 & UC04) -->
+	<servlet>
+		<servlet-name>BookDetailServlet</servlet-name>
+		<servlet-class>servlets.BookDetailServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BookDetailServlet</servlet-name>
+		<url-pattern>/book-detail</url-pattern>
+	</servlet-mapping>
+
 	<!-- DEBUG ONLY — Xóa trước khi deploy production -->
 	<servlet>
 		<servlet-name>PayOSDebugServlet</servlet-name>

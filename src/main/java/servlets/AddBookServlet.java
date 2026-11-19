@@ -95,6 +95,13 @@ public class AddBookServlet extends HttpServlet {
             }
 
             Book book = new Book(bCode, bName.trim(), bAuthor != null ? bAuthor.trim() : "", bPrice, bQty);
+            String bPublisher = req.getParameter("publisher");
+            String bImageUrl = req.getParameter("image_url");
+            String bDescription = req.getParameter("description");
+            book.setPublisher(bPublisher != null ? bPublisher.trim() : null);
+            book.setImageUrl(bImageUrl != null ? bImageUrl.trim() : null);
+            book.setDescription(bDescription != null ? bDescription.trim() : null);
+            book.setStatus("ACTIVE");
             String message = bookService.addBook(book);
             if ("SUCCESS".equalsIgnoreCase(message)) {
                 pw.println("<div class='alert alert-success text-center' style='border-radius:12px; margin-bottom:24px;'>Đã thêm sách \"" + escapeHtml(bName) + "\" vào kho thành công!</div>");
@@ -281,6 +288,18 @@ public class AddBookServlet extends HttpServlet {
                 + "      <div class=\"bookshelf-input-group\">\r\n"
                 + "        <label for=\"bookQuantity\">Số lượng nhập kho</label>\r\n"
                 + "        <input type=\"number\" name=\"quantity\" id=\"bookQuantity\" placeholder=\"Ví dụ: 50\" required min=\"1\">\r\n"
+                + "      </div>\r\n"
+                + "      <div class=\"bookshelf-input-group\">\r\n"
+                + "        <label for=\"bookPublisher\">Nh&agrave; xu&#7845;t b&#7843;n</label>\r\n"
+                + "        <input type=\"text\" name=\"publisher\" id=\"bookPublisher\" placeholder=\"V&iacute; d&#7909;: NXB Kim &#272;&#7891;ng\">\r\n"
+                + "      </div>\r\n"
+                + "      <div class=\"bookshelf-input-group\">\r\n"
+                + "        <label for=\"bookImageUrl\">URL &#7842;nh b&igrave;a</label>\r\n"
+                + "        <input type=\"text\" name=\"image_url\" id=\"bookImageUrl\" placeholder=\"https://example.com/anh-bia.jpg\">\r\n"
+                + "      </div>\r\n"
+                + "      <div class=\"bookshelf-input-group\">\r\n"
+                + "        <label for=\"bookDescription\">M&ocirc; t&#7843; chi ti&#7871;t</label>\r\n"
+                + "        <textarea name=\"description\" id=\"bookDescription\" rows=\"4\" placeholder=\"Nh&#7853;p m&ocirc; t&#7843; n&#7897;i dung s&aacute;ch...\" style=\"width:100%; padding:12px 16px; border:1px solid #cbd5e1; border-radius:12px; font-family:inherit; font-size:0.95rem; resize:vertical;\"></textarea>\r\n"
                 + "      </div>\r\n"
                 + "      <button class=\"btn-pill-buy\" type=\"submit\" style=\"margin-top:12px; width:100%; padding:13px 24px; font-size:1rem; font-weight:700;\">+ Thêm Vào Kho Hàng</button>\r\n"
                 + "    </form>\r\n"
