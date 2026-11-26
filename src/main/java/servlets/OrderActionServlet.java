@@ -15,7 +15,11 @@ import com.bittercode.service.OrderService;
 import com.bittercode.service.impl.OrderServiceImpl;
 import com.bittercode.util.StoreUtil;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 public class OrderActionServlet extends HttpServlet {
+    private static final Logger LOGGER = Logger.getLogger(OrderActionServlet.class.getName());
+
 
     private final OrderService orderService = new OrderServiceImpl();
 
@@ -173,7 +177,7 @@ public class OrderActionServlet extends HttpServlet {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             sendResponse(res, isJsonRequest, false, e.getMessage(), "orders");
         }
     }

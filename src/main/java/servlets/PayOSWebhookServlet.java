@@ -11,13 +11,16 @@ import jakarta.servlet.http.HttpServletResponse;
 import com.bittercode.service.OrderService;
 import com.bittercode.service.impl.OrderServiceImpl;
 import com.bittercode.util.PayOSConfig;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import vn.payos.type.Webhook;
 import vn.payos.type.WebhookData;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 public class PayOSWebhookServlet extends HttpServlet {
+    private static final Logger LOGGER = Logger.getLogger(PayOSWebhookServlet.class.getName());
+
     private static final long serialVersionUID = 1L;
 
     private final OrderService orderService = new OrderServiceImpl();
@@ -43,7 +46,6 @@ public class PayOSWebhookServlet extends HttpServlet {
         }
 
         String payload = requestBody.toString();
-        System.out.println("[PayOSWebhook] Received webhook payload: " + payload);
 
         if (payload.trim().isEmpty()) {
             res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -51,34 +53,33 @@ public class PayOSWebhookServlet extends HttpServlet {
             return;
         }
 
+        if (!PayOSConfig.isConfigured() || PayOSConfig.getPayOS() == null) {
+            res.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            res.getWriter().write("{\"error\":1,\"message\":\"PayOS webhook verification is not configured\"}");
+            return;
+        }
+
         try {
-            long orderCode = -1;
-            boolean isSuccess = false;
-
-            if (PayOSConfig.isConfigured() && PayOSConfig.getPayOS() != null) {
-                try {
-                    Webhook webhook = objectMapper.readValue(payload, Webhook.class);
-                    WebhookData verifiedData = PayOSConfig.getPayOS().verifyPaymentWebhookData(webhook);
-                    if (verifiedData != null) {
-                        orderCode = verifiedData.getOrderCode();
-                        isSuccess = "00".equals(verifiedData.getCode()) || "00".equals(webhook.getCode())
-                                || "success".equalsIgnoreCase(verifiedData.getDesc());
-                    }
-                } catch (Exception verifyEx) {
-                    System.err.println("[PayOSWebhook] Verification error: " + verifyEx.getMessage());
-                }
+            Webhook webhook = objectMapper.readValue(payload, Webhook.class);
+            WebhookData verifiedData;
+            try {
+                verifiedData = PayOSConfig.getPayOS().verifyPaymentWebhookData(webhook);
+            } catch (Exception verifyEx) {
+                LOGGER.warning("[PayOSWebhook] Signature verification failed: " + verifyEx.getMessage());
+                res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                res.getWriter().write("{\"error\":1,\"message\":\"Invalid webhook signature\"}");
+                return;
             }
 
-            // Fallback parsing if signature check failed or testing without live PayOS keys
-            if (orderCode <= 0) {
-                JsonNode rootNode = objectMapper.readTree(payload);
-                JsonNode dataNode = rootNode.path("data");
-                if (!dataNode.isMissingNode()) {
-                    orderCode = dataNode.path("orderCode").asLong(-1);
-                    String code = dataNode.path("code").asText("");
-                    isSuccess = "00".equals(code) || "00".equals(rootNode.path("code").asText());
-                }
+            if (verifiedData == null) {
+                res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                res.getWriter().write("{\"error\":1,\"message\":\"Invalid webhook signature\"}");
+                return;
             }
+
+            long orderCode = verifiedData.getOrderCode();
+            boolean isSuccess = "00".equals(verifiedData.getCode()) || "00".equals(webhook.getCode())
+                    || "success".equalsIgnoreCase(verifiedData.getDesc());
 
             if (orderCode > 0 && isSuccess) {
                 boolean confirmed = orderService.confirmPaymentAndDeductStock(orderCode);
@@ -92,10 +93,10 @@ public class PayOSWebhookServlet extends HttpServlet {
             res.getWriter().write("{\"error\":0,\"message\":\"Webhook acknowledged\"}");
 
         } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("[PayOSWebhook] Processing exception: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.warning("[PayOSWebhook] Processing exception: " + e.getMessage());
             res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            res.getWriter().write("{\"error\":1,\"message\":\"" + e.getMessage().replace("\"", "\\\"") + "\"}");
+            res.getWriter().write("{\"error\":1,\"message\":\"Internal server error\"}");
         }
     }
 }

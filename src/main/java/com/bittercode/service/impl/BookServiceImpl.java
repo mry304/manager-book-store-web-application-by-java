@@ -14,7 +14,11 @@ import com.bittercode.model.StoreException;
 import com.bittercode.service.BookService;
 import com.bittercode.util.DBUtil;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 public class BookServiceImpl implements BookService {
+    private static final Logger LOGGER = Logger.getLogger(BookServiceImpl.class.getName());
+
 
     private static final String getAllBooksQuery = "SELECT * FROM " + BooksDBConstants.TABLE_BOOK;
     private static final String getBookByIdQuery = "SELECT * FROM " + BooksDBConstants.TABLE_BOOK
@@ -46,7 +50,8 @@ public class BookServiceImpl implements BookService {
 
     /**
      * Tiện ích: đọc tất cả cột của 1 ResultSet row thành đối tượng Book,
-     * bao gồm cả các cột mới (publisher, image_url, description, category_id, status).
+     * bao gồm cả các cột mới (publisher, image_url, description, category_id,
+     * status).
      * Sử dụng tên cột thay vì chỉ số để tương thích khi schema thay đổi.
      */
     private Book mapRow(ResultSet rs) throws SQLException {
@@ -59,36 +64,40 @@ public class BookServiceImpl implements BookService {
         // Đọc các cột mở rộng — bỏ qua nếu cột chưa tồn tại
         try {
             book.setPublisher(rs.getString(BooksDBConstants.COLUMN_PUBLISHER));
-        } catch (SQLException ignored) { }
+        } catch (SQLException ignored) {
+        }
         try {
             book.setImageUrl(rs.getString(BooksDBConstants.COLUMN_IMAGE_URL));
-        } catch (SQLException ignored) { }
+        } catch (SQLException ignored) {
+        }
         try {
             book.setDescription(rs.getString(BooksDBConstants.COLUMN_DESCRIPTION));
-        } catch (SQLException ignored) { }
+        } catch (SQLException ignored) {
+        }
         try {
             book.setCategoryId(rs.getInt(BooksDBConstants.COLUMN_CATEGORY_ID));
-        } catch (SQLException ignored) { }
+        } catch (SQLException ignored) {
+        }
         try {
             book.setStatus(rs.getString(BooksDBConstants.COLUMN_STATUS));
-        } catch (SQLException ignored) { }
+        } catch (SQLException ignored) {
+        }
         return book;
     }
 
     @Override
     public Book getBookById(String bookId) throws StoreException {
         Book book = null;
-        Connection con = DBUtil.getConnection();
-        try {
-            PreparedStatement ps = con.prepareStatement(getBookByIdQuery);
+        try (Connection con = DBUtil.getConnection();
+                PreparedStatement ps = con.prepareStatement(getBookByIdQuery)) {
             ps.setString(1, bookId);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                book = mapRow(rs);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    book = mapRow(rs);
+                }
             }
         } catch (SQLException e) {
-
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return book;
     }
@@ -96,17 +105,14 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<Book> getAllBooks() throws StoreException {
         List<Book> books = new ArrayList<Book>();
-        Connection con = DBUtil.getConnection();
-
-        try {
-            PreparedStatement ps = con.prepareStatement(getAllBooksQuery);
-            ResultSet rs = ps.executeQuery();
-
+        try (Connection con = DBUtil.getConnection();
+                PreparedStatement ps = con.prepareStatement(getAllBooksQuery);
+                ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 books.add(mapRow(rs));
             }
         } catch (SQLException e) {
-
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return books;
     }
@@ -118,7 +124,8 @@ public class BookServiceImpl implements BookService {
         int safePageSize = Math.max(1, pageSize);
         String query = getAllBooksQuery + " ORDER BY " + BooksDBConstants.COLUMN_NAME + " ASC LIMIT ? OFFSET ?";
 
-        try (PreparedStatement ps = DBUtil.getConnection().prepareStatement(query)) {
+        try (Connection con = DBUtil.getConnection();
+                PreparedStatement ps = con.prepareStatement(query)) {
             ps.setInt(1, safePageSize);
             ps.setInt(2, (safePage - 1) * safePageSize);
             try (ResultSet rs = ps.executeQuery()) {
@@ -127,7 +134,7 @@ public class BookServiceImpl implements BookService {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return books;
     }
@@ -135,11 +142,12 @@ public class BookServiceImpl implements BookService {
     @Override
     public int getBookCount() throws StoreException {
         String query = "SELECT COUNT(*) FROM " + BooksDBConstants.TABLE_BOOK;
-        try (PreparedStatement ps = DBUtil.getConnection().prepareStatement(query);
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection con = DBUtil.getConnection();
+                PreparedStatement ps = con.prepareStatement(query);
+                ResultSet rs = ps.executeQuery()) {
             return rs.next() ? rs.getInt(1) : 0;
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return 0;
         }
     }
@@ -147,7 +155,8 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<Book> getBooksByCategory(String category, int page, int pageSize) throws StoreException {
         String normalized = normalizeCategory(category);
-        if ("ALL".equals(normalized)) return getBooksPage(page, pageSize);
+        if ("ALL".equals(normalized))
+            return getBooksPage(page, pageSize);
 
         String query;
         if ("BESTSELLER".equals(normalized)) {
@@ -167,7 +176,8 @@ public class BookServiceImpl implements BookService {
     @Override
     public int getBookCountByCategory(String category) throws StoreException {
         String normalized = normalizeCategory(category);
-        if ("ALL".equals(normalized)) return getBookCount();
+        if ("ALL".equals(normalized))
+            return getBookCount();
         String query;
         if ("BESTSELLER".equals(normalized)) {
             query = "SELECT COUNT(DISTINCT b.barcode) FROM books b JOIN order_details od ON od.book_barcode = b.barcode "
@@ -177,39 +187,44 @@ public class BookServiceImpl implements BookService {
         } else {
             query = "SELECT COUNT(*) FROM books WHERE quantity > 0";
         }
-        try (PreparedStatement ps = DBUtil.getConnection().prepareStatement(query); ResultSet rs = ps.executeQuery()) {
+        try (Connection con = DBUtil.getConnection();
+                PreparedStatement ps = con.prepareStatement(query);
+                ResultSet rs = ps.executeQuery()) {
             return rs.next() ? rs.getInt(1) : 0;
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             return 0;
         }
     }
 
     private List<Book> executeBookPageQuery(String query, int page, int pageSize) throws StoreException {
         List<Book> books = new ArrayList<>();
-        try (PreparedStatement ps = DBUtil.getConnection().prepareStatement(query)) {
+        try (Connection con = DBUtil.getConnection();
+                PreparedStatement ps = con.prepareStatement(query)) {
             ps.setInt(1, Math.max(1, pageSize));
             ps.setInt(2, (Math.max(1, page) - 1) * Math.max(1, pageSize));
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) books.add(mapRow(rs));
+                while (rs.next())
+                    books.add(mapRow(rs));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return books;
     }
 
     private String normalizeCategory(String category) {
-        if ("BESTSELLER".equalsIgnoreCase(category) || "FEATURED".equalsIgnoreCase(category) || "NEW".equalsIgnoreCase(category)) return category.trim().toUpperCase();
+        if ("BESTSELLER".equalsIgnoreCase(category) || "FEATURED".equalsIgnoreCase(category)
+                || "NEW".equalsIgnoreCase(category))
+            return category.trim().toUpperCase();
         return "ALL";
     }
 
     @Override
     public String deleteBookById(String bookId) throws StoreException {
         String response = ResponseCode.FAILURE.name();
-        Connection con = DBUtil.getConnection();
-        try {
-            PreparedStatement ps = con.prepareStatement(deleteBookByIdQuery);
+        try (Connection con = DBUtil.getConnection();
+                PreparedStatement ps = con.prepareStatement(deleteBookByIdQuery)) {
             ps.setString(1, bookId);
             int k = ps.executeUpdate();
             if (k == 1) {
@@ -217,7 +232,7 @@ public class BookServiceImpl implements BookService {
             }
         } catch (Exception e) {
             response += " : " + e.getMessage();
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return response;
     }
@@ -225,9 +240,8 @@ public class BookServiceImpl implements BookService {
     @Override
     public String addBook(Book book) throws StoreException {
         String responseCode = ResponseCode.FAILURE.name();
-        Connection con = DBUtil.getConnection();
-        try {
-            PreparedStatement ps = con.prepareStatement(addBookQuery);
+        try (Connection con = DBUtil.getConnection();
+                PreparedStatement ps = con.prepareStatement(addBookQuery)) {
             ps.setString(1, book.getBarcode());
             ps.setString(2, book.getName());
             ps.setString(3, book.getAuthor());
@@ -244,7 +258,7 @@ public class BookServiceImpl implements BookService {
             }
         } catch (Exception e) {
             responseCode += " : " + e.getMessage();
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return responseCode;
     }
@@ -252,16 +266,15 @@ public class BookServiceImpl implements BookService {
     @Override
     public String updateBookQtyById(String bookId, int quantity) throws StoreException {
         String responseCode = ResponseCode.FAILURE.name();
-        Connection con = DBUtil.getConnection();
-        try {
-            PreparedStatement ps = con.prepareStatement(updateBookQtyByIdQuery);
+        try (Connection con = DBUtil.getConnection();
+                PreparedStatement ps = con.prepareStatement(updateBookQtyByIdQuery)) {
             ps.setInt(1, quantity);
             ps.setString(2, bookId);
             ps.executeUpdate();
             responseCode = ResponseCode.SUCCESS.name();
         } catch (Exception e) {
             responseCode += " : " + e.getMessage();
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return responseCode;
     }
@@ -275,27 +288,31 @@ public class BookServiceImpl implements BookService {
         String[] ids = commaSeperatedBookIds.split(",");
         List<String> validIds = new ArrayList<>();
         for (String id : ids) {
-            String trimmed = id.trim().replace("'", "");
+            String trimmed = id.trim();
             if (!trimmed.isEmpty()) {
-                validIds.add("'" + trimmed + "'");
+                validIds.add(trimmed);
             }
         }
         if (validIds.isEmpty()) {
             return books;
         }
 
-        Connection con = DBUtil.getConnection();
-        try {
-            String getBooksByCommaSeperatedBookIdsQuery = "SELECT * FROM " + BooksDBConstants.TABLE_BOOK
-                    + " WHERE " + BooksDBConstants.COLUMN_BARCODE + " IN ( " + String.join(",", validIds) + " )";
-            PreparedStatement ps = con.prepareStatement(getBooksByCommaSeperatedBookIdsQuery);
-            ResultSet rs = ps.executeQuery();
+        String placeholders = String.join(",", java.util.Collections.nCopies(validIds.size(), "?"));
+        String getBooksByCommaSeperatedBookIdsQuery = "SELECT * FROM " + BooksDBConstants.TABLE_BOOK
+                + " WHERE " + BooksDBConstants.COLUMN_BARCODE + " IN (" + placeholders + ")";
 
-            while (rs.next()) {
-                books.add(mapRow(rs));
+        try (Connection con = DBUtil.getConnection();
+                PreparedStatement ps = con.prepareStatement(getBooksByCommaSeperatedBookIdsQuery)) {
+            for (int i = 0; i < validIds.size(); i++) {
+                ps.setString(i + 1, validIds.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    books.add(mapRow(rs));
+                }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return books;
     }
@@ -303,9 +320,8 @@ public class BookServiceImpl implements BookService {
     @Override
     public String updateBook(Book book) throws StoreException {
         String responseCode = ResponseCode.FAILURE.name();
-        Connection con = DBUtil.getConnection();
-        try {
-            PreparedStatement ps = con.prepareStatement(updateBookByIdQuery);
+        try (Connection con = DBUtil.getConnection();
+                PreparedStatement ps = con.prepareStatement(updateBookByIdQuery)) {
             ps.setString(1, book.getName());
             ps.setString(2, book.getAuthor());
             ps.setDouble(3, book.getPrice());
@@ -320,7 +336,7 @@ public class BookServiceImpl implements BookService {
             responseCode = ResponseCode.SUCCESS.name();
         } catch (Exception e) {
             responseCode += " : " + e.getMessage();
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return responseCode;
     }

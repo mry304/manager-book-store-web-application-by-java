@@ -17,7 +17,11 @@ import com.bittercode.service.BookService;
 import com.bittercode.service.impl.BookServiceImpl;
 import com.bittercode.util.StoreUtil;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 public class BuyBooksServlet extends HttpServlet {
+    private static final Logger LOGGER = Logger.getLogger(BuyBooksServlet.class.getName());
+
     BookService bookService = new BookServiceImpl();
 
     public void doPost(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
@@ -74,7 +78,7 @@ public class BuyBooksServlet extends HttpServlet {
             // pw.println("<div class=\"tab\"><a href=\"AddBook.html\">Add More
             // Books</a></div>");
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 

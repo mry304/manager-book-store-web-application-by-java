@@ -11,3 +11,11 @@ node_modules/
 .env
 src/main/resources/application.properties
 WebContent/WEB-INF/classes/application.properties
+WebContent/WEB-INF/classes/
+WebContent/WEB-INF/lib/
+WebContent/logs/
+WebContent/work/
+logs/
+work/
+.smarttomcat/
+AGENTS.md

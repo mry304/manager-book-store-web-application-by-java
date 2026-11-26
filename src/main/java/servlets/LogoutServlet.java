@@ -14,7 +14,11 @@ import com.bittercode.service.UserService;
 import com.bittercode.service.impl.UserServiceImpl;
 import com.bittercode.util.StoreUtil;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 public class LogoutServlet extends HttpServlet {
+    private static final Logger LOGGER = Logger.getLogger(LogoutServlet.class.getName());
+
 
     UserService authService = new UserServiceImpl();
 
@@ -39,7 +43,7 @@ public class LogoutServlet extends HttpServlet {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 

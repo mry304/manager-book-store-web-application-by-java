@@ -18,7 +18,11 @@ import com.bittercode.service.BookService;
 import com.bittercode.service.impl.BookServiceImpl;
 import com.bittercode.util.StoreUtil;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 public class RemoveBookServlet extends HttpServlet {
+    private static final Logger LOGGER = Logger.getLogger(RemoveBookServlet.class.getName());
+
 
     BookService bookService = new BookServiceImpl();
 
@@ -127,8 +131,8 @@ public class RemoveBookServlet extends HttpServlet {
             pw.println("</main>");
 
         } catch (Exception e) {
-            e.printStackTrace();
-            pw.println("<div class='bookshelf-auth-wrap'><div class='alert alert-danger text-center'>Đã xảy ra lỗi tải danh sách sách: " + e.getMessage() + "</div></div>");
+            LOGGER.log(Level.SEVERE, "Error loading book list in RemoveBookServlet", e);
+            pw.println("<div class='bookshelf-auth-wrap'><div class='alert alert-danger text-center'>Đã xảy ra lỗi, vui lòng thử lại sau.</div></div>");
         }
     }
 

@@ -20,10 +20,14 @@ import com.bittercode.model.Book;
 import com.bittercode.service.BookService;
 import com.bittercode.service.impl.BookServiceImpl;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /*
  * Store Util File To Store Commonly used methods & Persistent Cart Handling
  */
 public class StoreUtil {
+    private static final Logger LOGGER = Logger.getLogger(StoreUtil.class.getName());
+
 
     // Thread-safe in-memory cache for fast cart access and offline resilience
     private static final Map<String, Map<String, Integer>> userCartCache = new ConcurrentHashMap<>();
@@ -36,24 +40,20 @@ public class StoreUtil {
         if (isTableInitialized) return;
         synchronized (StoreUtil.class) {
             if (isTableInitialized) return;
-            try {
-                Connection con = DBUtil.getConnection();
-                if (con != null) {
-                    try (Statement stmt = con.createStatement()) {
-                        String sql = "CREATE TABLE IF NOT EXISTS user_cart ("
-                                + " id INT AUTO_INCREMENT PRIMARY KEY,"
-                                + " username VARCHAR(100) NOT NULL,"
-                                + " book_barcode VARCHAR(100) NOT NULL,"
-                                + " quantity INT NOT NULL DEFAULT 1,"
-                                + " UNIQUE KEY uq_user_book (username, book_barcode)"
-                                + ")";
-                        stmt.executeUpdate(sql);
-                        isTableInitialized = true;
-                    }
-                }
+            try (Connection con = DBUtil.getConnection();
+                 Statement stmt = con.createStatement()) {
+                String sql = "CREATE TABLE IF NOT EXISTS user_cart ("
+                        + " id INT AUTO_INCREMENT PRIMARY KEY,"
+                        + " username VARCHAR(100) NOT NULL,"
+                        + " book_barcode VARCHAR(100) NOT NULL,"
+                        + " quantity INT NOT NULL DEFAULT 1,"
+                        + " UNIQUE KEY uq_user_book (username, book_barcode)"
+                        + ")";
+                stmt.executeUpdate(sql);
+                isTableInitialized = true;
             } catch (Exception e) {
                 // Ignore if already created or connection fallback to in-memory
-                System.err.println("Note: user_cart DB init fallback to memory cache: " + e.getMessage());
+                LOGGER.warning("Note: user_cart DB init fallback to memory cache: " + e.getMessage());
             }
         }
     }
@@ -162,30 +162,27 @@ public class StoreUtil {
 
         // 2. Persist to DB table
         ensureCartTableExists();
-        try {
-            Connection con = DBUtil.getConnection();
-            if (con != null) {
-                // Clear old rows for this user
-                try (PreparedStatement psDel = con.prepareStatement("DELETE FROM user_cart WHERE username = ?")) {
-                    psDel.setString(1, username);
-                    psDel.executeUpdate();
-                }
+        try (Connection con = DBUtil.getConnection()) {
+            // Clear old rows for this user
+            try (PreparedStatement psDel = con.prepareStatement("DELETE FROM user_cart WHERE username = ?")) {
+                psDel.setString(1, username);
+                psDel.executeUpdate();
+            }
 
-                // Insert new rows
-                if (!cartMap.isEmpty()) {
-                    try (PreparedStatement psIns = con.prepareStatement("INSERT INTO user_cart (username, book_barcode, quantity) VALUES (?, ?, ?)")) {
-                        for (Map.Entry<String, Integer> entry : cartMap.entrySet()) {
-                            psIns.setString(1, username);
-                            psIns.setString(2, entry.getKey());
-                            psIns.setInt(3, entry.getValue());
-                            psIns.addBatch();
-                        }
-                        psIns.executeBatch();
+            // Insert new rows
+            if (!cartMap.isEmpty()) {
+                try (PreparedStatement psIns = con.prepareStatement("INSERT INTO user_cart (username, book_barcode, quantity) VALUES (?, ?, ?)")) {
+                    for (Map.Entry<String, Integer> entry : cartMap.entrySet()) {
+                        psIns.setString(1, username);
+                        psIns.setString(2, entry.getKey());
+                        psIns.setInt(3, entry.getValue());
+                        psIns.addBatch();
                     }
+                    psIns.executeBatch();
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error persisting user_cart to DB for " + username + ": " + e.getMessage());
+            LOGGER.warning("Error persisting user_cart to DB for " + username + ": " + e.getMessage());
         }
     }
 
@@ -200,25 +197,21 @@ public class StoreUtil {
         ensureCartTableExists();
 
         // 1. Try loading from database
-        try {
-            Connection con = DBUtil.getConnection();
-            if (con != null) {
-                try (PreparedStatement ps = con.prepareStatement("SELECT book_barcode, quantity FROM user_cart WHERE username = ? OR username IN (SELECT mailid FROM users WHERE username = ?)")) {
-                    ps.setString(1, username);
-                    ps.setString(2, username);
-                    try (ResultSet rs = ps.executeQuery()) {
-                        while (rs.next()) {
-                            String barcode = rs.getString("book_barcode");
-                            int qty = rs.getInt("quantity");
-                            if (barcode != null && !barcode.trim().isEmpty() && qty > 0) {
-                                cartMap.put(barcode.trim(), qty);
-                            }
-                        }
+        try (Connection con = DBUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement("SELECT book_barcode, quantity FROM user_cart WHERE username = ? OR username IN (SELECT mailid FROM users WHERE username = ?)")) {
+            ps.setString(1, username);
+            ps.setString(2, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String barcode = rs.getString("book_barcode");
+                    int qty = rs.getInt("quantity");
+                    if (barcode != null && !barcode.trim().isEmpty() && qty > 0) {
+                        cartMap.put(barcode.trim(), qty);
                     }
                 }
             }
         } catch (Exception e) {
-            System.err.println("DB load failed for user_cart, using memory cache fallback: " + e.getMessage());
+            LOGGER.warning("DB load failed for user_cart, using memory cache fallback: " + e.getMessage());
         }
 
         // 2. If DB returned empty, fallback to memory cache
@@ -248,17 +241,13 @@ public class StoreUtil {
             username = username.trim();
             userCartCache.remove(username);
             ensureCartTableExists();
-            try {
-                Connection con = DBUtil.getConnection();
-                if (con != null) {
-                    try (PreparedStatement ps = con.prepareStatement("DELETE FROM user_cart WHERE username = ? OR username IN (SELECT mailid FROM users WHERE username = ?)")) {
-                        ps.setString(1, username);
-                        ps.setString(2, username);
-                        ps.executeUpdate();
-                    }
-                }
+            try (Connection con = DBUtil.getConnection();
+                 PreparedStatement ps = con.prepareStatement("DELETE FROM user_cart WHERE username = ? OR username IN (SELECT mailid FROM users WHERE username = ?)")) {
+                ps.setString(1, username);
+                ps.setString(2, username);
+                ps.executeUpdate();
             } catch (Exception e) {
-                System.err.println("Error clearing DB user_cart for " + username + ": " + e.getMessage());
+                LOGGER.warning("Error clearing DB user_cart for " + username + ": " + e.getMessage());
             }
         }
 

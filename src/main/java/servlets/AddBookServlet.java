@@ -26,12 +26,16 @@ import com.bittercode.service.BookService;
 import com.bittercode.service.impl.BookServiceImpl;
 import com.bittercode.util.StoreUtil;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 @MultipartConfig(
     fileSizeThreshold = 1024 * 1024,      // 1 MB
     maxFileSize = 5 * 1024 * 1024,        // 5 MB
     maxRequestSize = 6 * 1024 * 1024      // 6 MB
 )
 public class AddBookServlet extends HttpServlet {
+    private static final Logger LOGGER = Logger.getLogger(AddBookServlet.class.getName());
+
     BookService bookService = new BookServiceImpl();
 
     @Override
@@ -114,7 +118,7 @@ public class AddBookServlet extends HttpServlet {
             pw.println("<div class='alert alert-danger text-center' style='border-radius:12px; margin-bottom:24px;'>Đơn giá hoặc số lượng không hợp lệ. Vui lòng nhập số chính xác!</div>");
             showAddBookForm(pw);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             pw.println("<div class='alert alert-danger text-center' style='border-radius:12px; margin-bottom:24px;'>Đã xảy ra lỗi khi thêm sách. Vui lòng thử lại!</div>");
             showAddBookForm(pw);
         }
@@ -260,7 +264,7 @@ public class AddBookServlet extends HttpServlet {
             pw.println("</div>");
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             pw.println("<div class='alert alert-danger text-center' style='border-radius:12px; margin-bottom:24px;'>Không thể đọc file: " + escapeHtml(e.getMessage()) + "</div>");
             showAddBookForm(pw);
         }

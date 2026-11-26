@@ -15,11 +15,15 @@ import com.bittercode.service.BookReviewService;
 import com.bittercode.service.impl.BookReviewServiceImpl;
 import com.bittercode.util.StoreUtil;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /**
  * Servlet quản lý đánh giá dành cho Admin.
  * Mapping: /admin-reviews
  */
 public class AdminReviewServlet extends HttpServlet {
+    private static final Logger LOGGER = Logger.getLogger(AdminReviewServlet.class.getName());
+
 
     private final BookReviewService reviewService = new BookReviewServiceImpl();
 
@@ -45,7 +49,7 @@ public class AdminReviewServlet extends HttpServlet {
         try {
             reviews = reviewService.getAllReviewsForAdmin(keyword, ratingFilter, replyStatus);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             reviews = java.util.Collections.emptyList();
         }
 
@@ -127,7 +131,7 @@ public class AdminReviewServlet extends HttpServlet {
         } catch (NumberFormatException e) {
             session.setAttribute("adminReviewFlash", "ID đánh giá không hợp lệ.");
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             session.setAttribute("adminReviewFlash", "Đã xảy ra lỗi: " + e.getMessage());
         }
 

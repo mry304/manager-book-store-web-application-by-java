@@ -17,7 +17,11 @@ import com.bittercode.service.BookService;
 import com.bittercode.service.impl.BookServiceImpl;
 import com.bittercode.util.StoreUtil;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 public class ReceiptServlet extends HttpServlet {
+    private static final Logger LOGGER = Logger.getLogger(ReceiptServlet.class.getName());
+
     BookService bookService = new BookServiceImpl();
 
     //NOT_IN_USED
@@ -82,7 +86,7 @@ public class ReceiptServlet extends HttpServlet {
             pw.println("</table><br/><div class='tab'>Tổng tiền đã thanh toán: " + StoreUtil.formatPrice(total) + "</div>");
 //            String fPay = req.getParameter("f_pay");
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 }

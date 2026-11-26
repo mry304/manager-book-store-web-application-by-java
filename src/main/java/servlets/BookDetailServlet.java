@@ -21,11 +21,15 @@ import com.bittercode.service.impl.BookServiceImpl;
 import com.bittercode.service.impl.BookReviewServiceImpl;
 import com.bittercode.util.StoreUtil;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /**
  * Servlet xử lý UC03 (Xem chi tiết sách) và UC04 (Đánh giá sách).
  * Mapping: /book-detail
  */
 public class BookDetailServlet extends HttpServlet {
+    private static final Logger LOGGER = Logger.getLogger(BookDetailServlet.class.getName());
+
 
     private final BookService bookService = new BookServiceImpl();
     private final BookReviewService reviewService = new BookReviewServiceImpl();
@@ -56,7 +60,7 @@ public class BookDetailServlet extends HttpServlet {
         try {
             book = bookService.getBookById(barcode);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             res.sendRedirect("viewbook");
             return;
         }
@@ -74,7 +78,7 @@ public class BookDetailServlet extends HttpServlet {
             avgRating = reviewService.getAverageRating(barcode);
             reviewCount = reviewService.getReviewCount(barcode);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             reviews = java.util.Collections.emptyList();
             avgRating = 0;
             reviewCount = 0;
@@ -456,7 +460,7 @@ public class BookDetailServlet extends HttpServlet {
                 session.setAttribute("reviewFlash", "Gửi đánh giá thất bại. Vui lòng thử lại!");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             session.setAttribute("reviewFlash", "Đã xảy ra lỗi khi gửi đánh giá.");
         }
 

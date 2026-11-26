@@ -30,11 +30,15 @@ import com.bittercode.util.StoreUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /**
  * Servlet tạo payment link VietQR qua PayOS REST API (direct HTTP call).
  * Không dùng PayOS SDK để tránh lỗi signature verification.
  */
 public class CreateQRPaymentServlet extends HttpServlet {
+    private static final Logger LOGGER = Logger.getLogger(CreateQRPaymentServlet.class.getName());
+
     private static final long serialVersionUID = 1L;
 
     private static final String PAYOS_API_URL = "https://api-merchant.payos.vn/v2/payment-requests";
@@ -158,8 +162,6 @@ public class CreateQRPaymentServlet extends HttpServlet {
                             + "&orderCode=" + orderCode
                             + "&returnUrl=" + returnUrl;
                     String signature = hmacSHA256(signatureData, PayOSConfig.getChecksumKey());
-                    System.out.println("[PayOS-DIRECT] signatureData = " + signatureData);
-                    System.out.println("[PayOS-DIRECT] signature     = " + signature);
 
                     String jsonBody = "{"
                             + "\"orderCode\":" + orderCode + ","
@@ -172,8 +174,6 @@ public class CreateQRPaymentServlet extends HttpServlet {
                             + "\"cancelUrl\":\"" + escapeJson(cancelUrl) + "\","
                             + "\"signature\":\"" + signature + "\""
                             + "}";
-
-                    System.out.println("[PayOS-DIRECT] Request body: " + jsonBody);
 
                     // Gửi HTTP POST
                     URL url = new URL(PAYOS_API_URL);
@@ -217,20 +217,20 @@ public class CreateQRPaymentServlet extends HttpServlet {
                         System.out.println("[PayOS-DIRECT] checkoutUrl   = " + checkoutUrl);
                     } else {
                         String desc2 = root.path("desc").asText("unknown");
-                        System.err.println("[PayOS-DIRECT] ❌ API Error code=" + code + " desc=" + desc2);
-                        System.err.println("[PayOS-DIRECT] Full response: " + rawResponse);
+                        LOGGER.warning("[PayOS-DIRECT] ❌ API Error code=" + code + " desc=" + desc2);
+                        LOGGER.warning("[PayOS-DIRECT] Full response: " + rawResponse);
                     }
 
                     conn.disconnect();
                 } catch (Exception apiEx) {
-                    System.err.println("[PayOS-DIRECT] Exception calling PayOS API: " + apiEx.getMessage());
+                    LOGGER.warning("[PayOS-DIRECT] Exception calling PayOS API: " + apiEx.getMessage());
                     apiEx.printStackTrace();
                 }
             }
 
             // 7. Fallback nếu PayOS thất bại
             if (qrCode == null || qrCode.trim().isEmpty()) {
-                System.err.println("[PayOS-DIRECT] FALLBACK activated — dùng VietQR tĩnh.");
+                LOGGER.warning("[PayOS-DIRECT] FALLBACK activated — dùng VietQR tĩnh.");
                 String defaultBankBin   = "970422"; // MB Bank
                 String defaultAccountNo = "0888999888";
                 String defaultAccName   = "CONG TY SACH BOOKS";
@@ -260,7 +260,7 @@ public class CreateQRPaymentServlet extends HttpServlet {
             rd.forward(req, res);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             res.sendRedirect(req.getContextPath() + "/checkout?error=" +
                     URLEncoder.encode("Có lỗi xảy ra khi tạo giao dịch: " + e.getMessage(), StandardCharsets.UTF_8));
         }

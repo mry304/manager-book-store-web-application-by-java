@@ -7,8 +7,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
+import com.bittercode.model.UserRole;
 import com.bittercode.util.PayOSConfig;
+import com.bittercode.util.StoreUtil;
 
 /**
  * DEBUG ONLY — Xóa servlet này trước khi deploy production.
@@ -22,6 +25,13 @@ public class PayOSDebugServlet extends HttpServlet {
             throws ServletException, IOException {
         res.setContentType("text/plain; charset=UTF-8");
         PrintWriter out = res.getWriter();
+
+        HttpSession session = req.getSession(false);
+        if (!StoreUtil.isLoggedIn(UserRole.SELLER, session)) {
+            res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            out.println("Access denied. Seller login required.");
+            return;
+        }
 
         String action = req.getParameter("action");
 
@@ -40,9 +50,9 @@ public class PayOSDebugServlet extends HttpServlet {
         out.println("=== PayOS Configuration Debug ===");
         out.println("");
         out.println("isConfigured : " + configured);
-        out.println("clientId     : " + clientId);
-        out.println("apiKey       : " + (apiKey.isEmpty() ? "(empty)" : apiKey.substring(0, Math.min(8, apiKey.length())) + "... (total " + apiKey.length() + " chars)"));
-        out.println("checksumKey  : " + (checksumKey.isEmpty() ? "(empty)" : checksumKey.substring(0, Math.min(8, checksumKey.length())) + "... (total " + checksumKey.length() + " chars)"));
+        out.println("clientId     : " + (clientId.isEmpty() ? "(empty)" : "(configured)"));
+        out.println("apiKey       : " + (apiKey.isEmpty() ? "(empty)" : "(configured)"));
+        out.println("checksumKey  : " + (checksumKey.isEmpty() ? "(empty)" : "(configured)"));
         out.println("returnUrl    : " + PayOSConfig.getReturnUrl());
         out.println("cancelUrl    : " + PayOSConfig.getCancelUrl());
         out.println("");

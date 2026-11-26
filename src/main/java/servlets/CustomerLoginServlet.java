@@ -17,7 +17,11 @@ import com.bittercode.service.UserService;
 import com.bittercode.service.impl.UserServiceImpl;
 import com.bittercode.util.StoreUtil;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 public class CustomerLoginServlet extends HttpServlet {
+    private static final Logger LOGGER = Logger.getLogger(CustomerLoginServlet.class.getName());
+
 
     UserService authService = new UserServiceImpl();
 
@@ -29,6 +33,7 @@ public class CustomerLoginServlet extends HttpServlet {
         try {
             User user = authService.login(UserRole.CUSTOMER, uName, pWord, req.getSession());
             if (user != null) {
+                req.changeSessionId();
                 // Restore customer cart items from persistent storage (database & cache)
                 StoreUtil.restoreUserCart(req.getSession(), user.getUsername());
                 res.sendRedirect("viewbook");
@@ -39,7 +44,7 @@ public class CustomerLoginServlet extends HttpServlet {
                 pw.println("<div class='bookshelf-auth-wrap' style='margin-top:-20px; margin-bottom:20px;'><div class='alert alert-danger text-center' style='border-radius:12px;'>Tên đăng nhập hoặc mật khẩu không chính xác. Vui lòng thử lại!</div></div>");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             PrintWriter pw = res.getWriter();
             RequestDispatcher rd = req.getRequestDispatcher("CustomerLogin.html");
             rd.include(req, res);

@@ -17,7 +17,11 @@ import com.bittercode.service.BookService;
 import com.bittercode.service.impl.BookServiceImpl;
 import com.bittercode.util.StoreUtil;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 public class ViewBookServlet extends HttpServlet {
+    private static final Logger LOGGER = Logger.getLogger(ViewBookServlet.class.getName());
+
 
     BookService bookService = new BookServiceImpl();
 
@@ -176,7 +180,7 @@ public class ViewBookServlet extends HttpServlet {
             pw.println("</script>");
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 

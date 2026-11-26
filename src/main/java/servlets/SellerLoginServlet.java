@@ -16,7 +16,11 @@ import com.bittercode.model.UserRole;
 import com.bittercode.service.UserService;
 import com.bittercode.service.impl.UserServiceImpl;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 public class SellerLoginServlet extends HttpServlet {
+    private static final Logger LOGGER = Logger.getLogger(SellerLoginServlet.class.getName());
+
 
     UserService userService = new UserServiceImpl();
 
@@ -27,6 +31,7 @@ public class SellerLoginServlet extends HttpServlet {
         try {
             User user = userService.login(UserRole.SELLER, uName, pWord, req.getSession());
             if (user != null) {
+                req.changeSessionId();
                 res.sendRedirect("statistics");
             } else {
                 PrintWriter pw = res.getWriter();
@@ -36,7 +41,7 @@ public class SellerLoginServlet extends HttpServlet {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             PrintWriter pw = res.getWriter();
             RequestDispatcher rd = req.getRequestDispatcher("SellerLogin.html");
             rd.include(req, res);

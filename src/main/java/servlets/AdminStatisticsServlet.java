@@ -25,7 +25,11 @@ import com.bittercode.model.UserRole;
 import com.bittercode.util.DBUtil;
 import com.bittercode.util.StoreUtil;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 public class AdminStatisticsServlet extends HttpServlet {
+    private static final Logger LOGGER = Logger.getLogger(AdminStatisticsServlet.class.getName());
+
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
@@ -76,8 +80,7 @@ public class AdminStatisticsServlet extends HttpServlet {
         List<Map<String, Object>> slowMovingStockBooks = new ArrayList<>();
         List<Map<String, Object>> recentOrders = new ArrayList<>();
 
-        try {
-            Connection con = DBUtil.getConnection();
+        try (Connection con = DBUtil.getConnection()) {
 
             // 1. Total Revenue
             try (PreparedStatement ps = con.prepareStatement("SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE status != 'CANCELLED'")) {
@@ -286,7 +289,7 @@ public class AdminStatisticsServlet extends HttpServlet {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
 
         // Pass statistics attributes to JSP
@@ -642,7 +645,7 @@ public class AdminStatisticsServlet extends HttpServlet {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
 
         String formattedRevenue = String.format(new Locale("vi", "VN"), "%,.0f đ", periodRevenue);

@@ -5,7 +5,11 @@ import java.util.Properties;
 
 import vn.payos.PayOS;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 public final class PayOSConfig {
+    private static final Logger LOGGER = Logger.getLogger(PayOSConfig.class.getName());
+
 
     private static volatile PayOS payOSInstance = null;
     private static final Properties appProperties = new Properties();
@@ -16,7 +20,7 @@ public final class PayOSConfig {
                 appProperties.load(input);
             }
         } catch (Exception e) {
-            System.err.println("[PayOSConfig] Could not load application.properties: " + e.getMessage());
+            LOGGER.warning("[PayOSConfig] Could not load application.properties: " + e.getMessage());
         }
     }
 
@@ -83,10 +87,9 @@ public final class PayOSConfig {
                     String checksumKey = getChecksumKey();
                     if (!clientId.isEmpty() && !apiKey.isEmpty() && !checksumKey.isEmpty()) {
                         payOSInstance = new PayOS(clientId, apiKey, checksumKey);
-                        System.out.println("[PayOSConfig] PayOS SDK initialized successfully with Client ID: " + clientId);
-                        System.out.println("[PayOSConfig] checksumKey (first 8 chars): " + (checksumKey.length() >= 8 ? checksumKey.substring(0, 8) : checksumKey) + "...");
+                        System.out.println("[PayOSConfig] PayOS SDK initialized successfully.");
                     } else {
-                        System.err.println("[PayOSConfig] Warning: PayOS credentials are not fully configured.");
+                        LOGGER.warning("[PayOSConfig] Warning: PayOS credentials are not fully configured.");
                     }
                 }
             }

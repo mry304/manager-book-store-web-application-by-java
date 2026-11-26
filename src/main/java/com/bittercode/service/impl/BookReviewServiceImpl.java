@@ -13,10 +13,14 @@ import com.bittercode.model.StoreException;
 import com.bittercode.service.BookReviewService;
 import com.bittercode.util.DBUtil;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /**
  * Triển khai BookReviewService — thao tác bảng book_reviews (UC04 + Admin review management).
  */
 public class BookReviewServiceImpl implements BookReviewService {
+    private static final Logger LOGGER = Logger.getLogger(BookReviewServiceImpl.class.getName());
+
 
     // Lấy danh sách đánh giá VISIBLE kèm admin_reply, mới nhất lên đầu
     private static final String GET_REVIEWS_SQL =
@@ -49,8 +53,8 @@ public class BookReviewServiceImpl implements BookReviewService {
     @Override
     public List<BookReview> getReviewsByBarcode(String barcode) throws StoreException {
         List<BookReview> reviews = new ArrayList<>();
-        Connection con = DBUtil.getConnection();
-        try (PreparedStatement ps = con.prepareStatement(GET_REVIEWS_SQL)) {
+        try (Connection con = DBUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(GET_REVIEWS_SQL)) {
             ps.setString(1, barcode);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -58,15 +62,15 @@ public class BookReviewServiceImpl implements BookReviewService {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return reviews;
     }
 
     @Override
     public double getAverageRating(String barcode) throws StoreException {
-        Connection con = DBUtil.getConnection();
-        try (PreparedStatement ps = con.prepareStatement(AVG_RATING_SQL)) {
+        try (Connection con = DBUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(AVG_RATING_SQL)) {
             ps.setString(1, barcode);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -75,15 +79,15 @@ public class BookReviewServiceImpl implements BookReviewService {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return 0.0;
     }
 
     @Override
     public int getReviewCount(String barcode) throws StoreException {
-        Connection con = DBUtil.getConnection();
-        try (PreparedStatement ps = con.prepareStatement(COUNT_REVIEWS_SQL)) {
+        try (Connection con = DBUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(COUNT_REVIEWS_SQL)) {
             ps.setString(1, barcode);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -91,7 +95,7 @@ public class BookReviewServiceImpl implements BookReviewService {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return 0;
     }
@@ -99,8 +103,8 @@ public class BookReviewServiceImpl implements BookReviewService {
     @Override
     public String addReview(BookReview review) throws StoreException {
         String responseCode = ResponseCode.FAILURE.name();
-        Connection con = DBUtil.getConnection();
-        try (PreparedStatement ps = con.prepareStatement(ADD_REVIEW_SQL)) {
+        try (Connection con = DBUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(ADD_REVIEW_SQL)) {
             ps.setString(1, review.getBookBarcode());
             ps.setString(2, review.getUsername());
             ps.setInt(3, review.getRating());
@@ -111,7 +115,7 @@ public class BookReviewServiceImpl implements BookReviewService {
             }
         } catch (SQLException e) {
             responseCode += " : " + e.getMessage();
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return responseCode;
     }
@@ -120,7 +124,6 @@ public class BookReviewServiceImpl implements BookReviewService {
     public List<BookReview> getAllReviewsForAdmin(String keyword, String ratingFilter, String replyStatus)
             throws StoreException {
         List<BookReview> reviews = new ArrayList<>();
-        Connection con = DBUtil.getConnection();
 
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT br.id, br.book_barcode, br.username, br.rating, br.comment, br.created_at, ");
@@ -176,7 +179,8 @@ public class BookReviewServiceImpl implements BookReviewService {
 
         sql.append("ORDER BY br.created_at DESC");
 
-        try (PreparedStatement ps = con.prepareStatement(sql.toString())) {
+        try (Connection con = DBUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql.toString())) {
             for (int i = 0; i < params.size(); i++) {
                 ps.setObject(i + 1, params.get(i));
             }
@@ -190,7 +194,7 @@ public class BookReviewServiceImpl implements BookReviewService {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return reviews;
     }
@@ -198,8 +202,8 @@ public class BookReviewServiceImpl implements BookReviewService {
     @Override
     public String replyToReview(int reviewId, String replyContent, String adminUsername) throws StoreException {
         String responseCode = ResponseCode.FAILURE.name();
-        Connection con = DBUtil.getConnection();
-        try (PreparedStatement ps = con.prepareStatement(REPLY_SQL)) {
+        try (Connection con = DBUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(REPLY_SQL)) {
             ps.setString(1, replyContent);
             ps.setString(2, adminUsername);
             ps.setInt(3, reviewId);
@@ -209,7 +213,7 @@ public class BookReviewServiceImpl implements BookReviewService {
             }
         } catch (SQLException e) {
             responseCode += " : " + e.getMessage();
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return responseCode;
     }
@@ -217,8 +221,8 @@ public class BookReviewServiceImpl implements BookReviewService {
     @Override
     public String toggleReviewStatus(int reviewId, String newStatus) throws StoreException {
         String responseCode = ResponseCode.FAILURE.name();
-        Connection con = DBUtil.getConnection();
-        try (PreparedStatement ps = con.prepareStatement(TOGGLE_STATUS_SQL)) {
+        try (Connection con = DBUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(TOGGLE_STATUS_SQL)) {
             ps.setString(1, newStatus);
             ps.setInt(2, reviewId);
             int rows = ps.executeUpdate();
@@ -227,7 +231,7 @@ public class BookReviewServiceImpl implements BookReviewService {
             }
         } catch (SQLException e) {
             responseCode += " : " + e.getMessage();
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return responseCode;
     }
@@ -235,8 +239,8 @@ public class BookReviewServiceImpl implements BookReviewService {
     @Override
     public String deleteReview(int reviewId) throws StoreException {
         String responseCode = ResponseCode.FAILURE.name();
-        Connection con = DBUtil.getConnection();
-        try (PreparedStatement ps = con.prepareStatement(DELETE_SQL)) {
+        try (Connection con = DBUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(DELETE_SQL)) {
             ps.setInt(1, reviewId);
             int rows = ps.executeUpdate();
             if (rows == 1) {
@@ -244,7 +248,7 @@ public class BookReviewServiceImpl implements BookReviewService {
             }
         } catch (SQLException e) {
             responseCode += " : " + e.getMessage();
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return responseCode;
     }

@@ -7,11 +7,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import com.bittercode.model.Order;
 import com.bittercode.model.OrderStatus;
+import com.bittercode.model.UserRole;
 import com.bittercode.service.OrderService;
 import com.bittercode.service.impl.OrderServiceImpl;
+import com.bittercode.util.StoreUtil;
 
 public class CheckOrderStatusServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -26,6 +29,15 @@ public class CheckOrderStatusServlet extends HttpServlet {
         res.setDateHeader("Expires", 0);
 
         PrintWriter pw = res.getWriter();
+
+        HttpSession session = req.getSession(false);
+        boolean isCustomer = StoreUtil.isLoggedIn(UserRole.CUSTOMER, session);
+        boolean isSeller = StoreUtil.isLoggedIn(UserRole.SELLER, session);
+        if (!isCustomer && !isSeller) {
+            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            pw.write("{\"error\":1,\"message\":\"Vui lòng đăng nhập để kiểm tra đơn hàng\",\"isPaid\":false}");
+            return;
+        }
 
         String orderCodeParam = req.getParameter("orderCode");
         String orderIdParam = req.getParameter("orderId");
@@ -43,6 +55,16 @@ public class CheckOrderStatusServlet extends HttpServlet {
                 res.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 pw.write("{\"error\":1,\"message\":\"Đơn hàng không tồn tại\",\"isPaid\":false}");
                 return;
+            }
+
+            if (isCustomer && !isSeller) {
+                String currentUser = StoreUtil.getCustomerUsername(session);
+                if (currentUser == null || order.getUsername() == null
+                        || !currentUser.equalsIgnoreCase(order.getUsername())) {
+                    res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    pw.write("{\"error\":1,\"message\":\"Bạn không có quyền xem đơn hàng này\",\"isPaid\":false}");
+                    return;
+                }
             }
 
             String status = order.getStatus() != null ? order.getStatus().toUpperCase() : "PENDING";

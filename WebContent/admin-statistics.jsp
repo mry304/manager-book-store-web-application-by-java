@@ -855,15 +855,25 @@
                       </tr>
                       <% } else { for (Map<String, Object> o : recOrders) {
                         String st = (String) o.get("status");
-                        String badgeClass = "status-paid";
-                        String stVi = "ĐÃ THANH TOÁN";
-                        if ("PROCESSING".equalsIgnoreCase(st)) {
-                        badgeClass = "status-processing";
-                        stVi = "ĐANG XỬ LÝ";
-                        } else if ("SHIPPED".equalsIgnoreCase(st)) {
-                        stVi = "ĐÃ GIAO HÀNG";
+                        String badgeClass = "status-processing";
+                        String badgeStyle = "background:#fef3c7; color:#92400e;";
+                        String stVi = "CHỜ XÁC NHẬN";
+                        if ("CONFIRMED".equalsIgnoreCase(st) || "PAID".equalsIgnoreCase(st)) {
+                          badgeStyle = "background:#dbeafe; color:#1e40af;";
+                          stVi = "ĐÃ XÁC NHẬN";
+                        } else if ("SHIPPING".equalsIgnoreCase(st) || "SHIPPED".equalsIgnoreCase(st)) {
+                          badgeStyle = "background:#ffedd5; color:#9a3412;";
+                          stVi = "ĐANG GIAO HÀNG";
+                        } else if ("COMPLETED".equalsIgnoreCase(st)) {
+                          badgeClass = "status-paid";
+                          badgeStyle = "background:#dcfce7; color:#166534;";
+                          stVi = "HOÀN THÀNH";
                         } else if ("CANCELLED".equalsIgnoreCase(st)) {
-                        stVi = "ĐÃ HỦY";
+                          badgeStyle = "background:#fee2e2; color:#991b1b;";
+                          stVi = "ĐÃ HỦY";
+                        } else if ("PROCESSING".equalsIgnoreCase(st)) {
+                          badgeStyle = "background:#fef3c7; color:#92400e;";
+                          stVi = "ĐANG XỬ LÝ";
                         }
                         %>
                         <tr>
@@ -882,7 +892,7 @@
                             <%= String.format("%,.0f đ", (Double)o.get("totalAmount")) %>
                           </td>
                           <td style="vertical-align:middle; text-align:center; padding:12px 14px;">
-                            <span class="badge-order-status-pill <%= badgeClass %>">
+                            <span class="badge-order-status-pill <%= badgeClass %>" style="<%= badgeStyle %>">
                               <%= stVi %>
                             </span>
                           </td>

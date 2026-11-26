@@ -20,7 +20,11 @@ import com.bittercode.service.BookService;
 import com.bittercode.service.impl.BookServiceImpl;
 import com.bittercode.util.StoreUtil;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 public class CartServlet extends HttpServlet {
+    private static final Logger LOGGER = Logger.getLogger(CartServlet.class.getName());
+
 
     BookService bookService = new BookServiceImpl();
 
@@ -130,7 +134,7 @@ public class CartServlet extends HttpServlet {
             pw.println("</div>");   // end bookshelf-page-container
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 

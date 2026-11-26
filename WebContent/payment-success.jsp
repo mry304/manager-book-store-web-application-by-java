@@ -1,7 +1,14 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="com.bittercode.model.Order, com.bittercode.model.OrderDetail, com.bittercode.service.OrderService, com.bittercode.service.impl.OrderServiceImpl" %>
+<%@ page import="com.bittercode.model.Order, com.bittercode.model.OrderDetail, com.bittercode.model.UserRole, com.bittercode.service.OrderService, com.bittercode.service.impl.OrderServiceImpl, com.bittercode.util.StoreUtil" %>
 <%@ page import="java.text.NumberFormat, java.text.SimpleDateFormat, java.util.Locale" %>
 <%
+    boolean isCustomer = StoreUtil.isLoggedIn(UserRole.CUSTOMER, session);
+    boolean isSeller = StoreUtil.isLoggedIn(UserRole.SELLER, session);
+    if (!isCustomer && !isSeller) {
+        response.sendRedirect("CustomerLogin.html");
+        return;
+    }
+
     String orderCodeParam = request.getParameter("orderCode");
     String orderIdParam = request.getParameter("orderId");
     Order order = null;
@@ -19,6 +26,14 @@
             OrderService orderService = new OrderServiceImpl();
             order = orderService.getOrderById(orderIdParam.trim());
         } catch (Exception ignored) {}
+    }
+
+    if (order != null && isCustomer && !isSeller) {
+        String currentUser = StoreUtil.getCustomerUsername(session);
+        if (currentUser == null || order.getUsername() == null || !currentUser.equalsIgnoreCase(order.getUsername())) {
+            response.sendRedirect("orders");
+            return;
+        }
     }
 
     String formattedTotal = "--";

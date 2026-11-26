@@ -4,18 +4,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 class DatabaseConfig {
+    private static final Logger LOGGER = Logger.getLogger(DatabaseConfig.class.getName());
+
 
     static Properties prop = new Properties();
     static {
-
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        InputStream input = classLoader.getResourceAsStream("application.properties");
-
-        try {
-            prop.load(input);
+        try (InputStream input = classLoader.getResourceAsStream("application.properties")) {
+            if (input != null) {
+                prop.load(input);
+            }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 

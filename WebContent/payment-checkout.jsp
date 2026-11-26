@@ -1,6 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.text.NumberFormat, java.util.Locale" %>
+<%@ page import="java.text.NumberFormat, java.util.Locale, com.bittercode.model.UserRole, com.bittercode.util.StoreUtil" %>
 <%
+    if (!StoreUtil.isLoggedIn(UserRole.CUSTOMER, session) && !StoreUtil.isLoggedIn(UserRole.SELLER, session)) {
+        response.sendRedirect("CustomerLogin.html");
+        return;
+    }
     Long orderCode = (Long) request.getAttribute("orderCode");
     String orderId = (String) request.getAttribute("orderId");
     Double totalAmount = (Double) request.getAttribute("totalAmount");

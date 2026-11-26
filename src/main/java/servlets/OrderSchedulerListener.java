@@ -12,7 +12,11 @@ import com.bittercode.service.impl.OrderServiceImpl;
 import com.bittercode.util.EmailConfig;
 import com.bittercode.util.OrderEmailService;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 public class OrderSchedulerListener implements ServletContextListener {
+    private static final Logger LOGGER = Logger.getLogger(OrderSchedulerListener.class.getName());
+
 
     private ScheduledExecutorService scheduler;
     private final OrderService orderService = new OrderServiceImpl();
@@ -34,7 +38,7 @@ public class OrderSchedulerListener implements ServletContextListener {
                     System.out.println("[OrderScheduler] Auto-completed " + count + " shipping orders past 3 days.");
                 }
             } catch (Exception e) {
-                System.err.println("[OrderScheduler] Error checking auto-complete orders: " + e.getMessage());
+                LOGGER.warning("[OrderScheduler] Error checking auto-complete orders: " + e.getMessage());
             }
         }, 1, 30, TimeUnit.MINUTES);
 

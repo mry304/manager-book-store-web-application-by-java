@@ -24,7 +24,11 @@ import com.bittercode.service.OrderService;
 import com.bittercode.service.impl.OrderServiceImpl;
 import com.bittercode.util.StoreUtil;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 public class OrdersServlet extends HttpServlet {
+    private static final Logger LOGGER = Logger.getLogger(OrdersServlet.class.getName());
+
 
     private final OrderService orderService = new OrderServiceImpl();
 
@@ -334,8 +338,8 @@ public class OrdersServlet extends HttpServlet {
             pw.println("</script>");
 
         } catch (Exception e) {
-            e.printStackTrace();
-            pw.println("<div class='container my-4'><div class='alert alert-danger'>Lỗi tải danh sách đơn hàng: " + e.getMessage() + "</div></div>");
+            LOGGER.log(Level.SEVERE, "Error loading orders list", e);
+            pw.println("<div class='container my-4'><div class='alert alert-danger'>Đã xảy ra lỗi, vui lòng thử lại sau.</div></div>");
         }
     }
 

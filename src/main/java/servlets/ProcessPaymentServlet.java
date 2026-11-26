@@ -30,7 +30,11 @@ import com.bittercode.util.GHNConfig;
 import com.bittercode.util.StoreUtil;
 import com.bittercode.util.OrderEmailService;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 public class ProcessPaymentServlet extends HttpServlet {
+    private static final Logger LOGGER = Logger.getLogger(ProcessPaymentServlet.class.getName());
+
 
     BookService bookService = new BookServiceImpl();
 
@@ -182,7 +186,7 @@ public class ProcessPaymentServlet extends HttpServlet {
             pw.println("</div>");
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 

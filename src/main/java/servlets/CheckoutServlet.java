@@ -13,7 +13,11 @@ import com.bittercode.constant.BookStoreConstants;
 import com.bittercode.model.UserRole;
 import com.bittercode.util.StoreUtil;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 public class CheckoutServlet extends HttpServlet {
+    private static final Logger LOGGER = Logger.getLogger(CheckoutServlet.class.getName());
+
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
         doPost(req, res);
     }
@@ -47,7 +51,7 @@ public class CheckoutServlet extends HttpServlet {
                     + StoreUtil.formatPrice(amount).replace("'", "\\\\'")
                     + "';</script>");
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 

@@ -2,6 +2,8 @@ package servlets;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -15,10 +17,14 @@ import com.bittercode.util.GHNConfig;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /**
  * Webhook receiver for GHN order status callbacks.
  */
 public class GHNWebhookServlet extends HttpServlet {
+    private static final Logger LOGGER = Logger.getLogger(GHNWebhookServlet.class.getName());
+
     private static final long serialVersionUID = 1L;
 
     private final OrderService orderService = new OrderServiceImpl();
@@ -36,14 +42,19 @@ public class GHNWebhookServlet extends HttpServlet {
         res.setContentType("application/json; charset=UTF-8");
 
         String configuredSecret = GHNConfig.getWebhookSecret();
-        if (!configuredSecret.isEmpty()) {
-            String tokenParam = req.getParameter("token");
-            String tokenHeader = req.getHeader("X-Webhook-Token");
-            if (!configuredSecret.equals(tokenParam) && !configuredSecret.equals(tokenHeader)) {
-                res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                res.getWriter().write("{\"error\":1,\"message\":\"Unauthorized webhook request\"}");
-                return;
-            }
+        if (configuredSecret.isEmpty()) {
+            res.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            res.getWriter().write("{\"error\":1,\"message\":\"GHN webhook secret is not configured\"}");
+            return;
+        }
+
+        String tokenHeader = req.getHeader("X-Webhook-Token");
+        if (tokenHeader == null || !MessageDigest.isEqual(
+                configuredSecret.getBytes(StandardCharsets.UTF_8),
+                tokenHeader.getBytes(StandardCharsets.UTF_8))) {
+            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            res.getWriter().write("{\"error\":1,\"message\":\"Unauthorized webhook request\"}");
+            return;
         }
 
         StringBuilder body = new StringBuilder();
@@ -91,7 +102,7 @@ public class GHNWebhookServlet extends HttpServlet {
                         status = verifiedStatus;
                     }
                 } catch (Exception verifyEx) {
-                    System.err.println("[GHNWebhook] Cross-check warning for " + orderCode + ": " + verifyEx.getMessage());
+                    LOGGER.warning("[GHNWebhook] Cross-check warning for " + orderCode + ": " + verifyEx.getMessage());
                 }
             }
 
@@ -99,7 +110,7 @@ public class GHNWebhookServlet extends HttpServlet {
             res.setStatus(HttpServletResponse.SC_OK);
             res.getWriter().write("{\"error\":0,\"message\":\"Webhook processed\"}");
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             String msg = e.getMessage() != null ? e.getMessage().replace("\"", "\\\"") : "Internal error";
             res.getWriter().write("{\"error\":1,\"message\":\"" + msg + "\"}");
