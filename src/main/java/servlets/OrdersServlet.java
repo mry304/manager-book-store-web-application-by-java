@@ -174,6 +174,17 @@ public class OrdersServlet extends HttpServlet {
                     // Status Badge & Extra Status Info
                     pw.println("            <td>");
                     pw.println("              <span class=\"" + st.getBadgeClass() + "\">" + st.getDisplayName() + "</span>");
+                    if (order.getGhnOrderCode() != null && !order.getGhnOrderCode().isEmpty()) {
+                        pw.println("              <div style=\"margin-top:6px; padding:6px 8px; border-radius:8px; background:#f8fafc; border:1px solid #cbd5e1; font-size:0.78rem; color:#334155;\">");
+                        pw.println("                <strong>GHN:</strong> <code>" + order.getGhnOrderCode() + "</code><br>");
+                        if (order.getGhnStatus() != null && !order.getGhnStatus().isEmpty()) {
+                            pw.println("                <span>Trạng thái GHN: <strong>" + order.getGhnStatus() + "</strong></span><br>");
+                        }
+                        if (order.getShippingFee() > 0) {
+                            pw.println("                <span>Phí GHN (Shop trả): " + StoreUtil.formatPrice(order.getShippingFee()) + "</span>");
+                        }
+                        pw.println("              </div>");
+                    }
 
                     if (st == OrderStatus.SHIPPING) {
                         pw.println("              <div class=\"order-meta-box order-meta-shipping\">");
@@ -219,16 +230,22 @@ public class OrdersServlet extends HttpServlet {
                         // Seller Actions
                         if (st == OrderStatus.PENDING) {
                             pw.println("                <form method=\"POST\" action=\"orders-action\">");
+                            // GHN shipping handled above
                             pw.println("                  <input type=\"hidden\" name=\"action\" value=\"confirm\">");
                             pw.println("                  <input type=\"hidden\" name=\"orderId\" value=\"" + order.getOrderId() + "\">");
-                            pw.println("                  <button type=\"submit\" class=\"btn-order-action btn-order-confirm\" style=\"width:100%; margin-bottom:5px;\">&#10003; Xác nhận đơn</button>");
+                            pw.println("                  <button type=\"submit\" class=\"btn-order-action btn-order-confirm\" style=\"width:100%; margin-bottom:5px;\">&#10003; Xác nhận &amp; Tạo GHN</button>");
                             pw.println("                </form>");
                             pw.println("                <button type=\"button\" class=\"btn-order-action btn-order-cancel\" onclick=\"openCancelModal('" + order.getOrderId() + "')\">&#10005; Hủy đơn</button>");
                         } else if (st == OrderStatus.CONFIRMED) {
                             pw.println("                <form method=\"POST\" action=\"orders-action\">");
-                            pw.println("                  <input type=\"hidden\" name=\"action\" value=\"ship\">");
+                            // GHN shipping handled above
+                            if (order.getGhnOrderCode() == null || order.getGhnOrderCode().isEmpty()) {
+                                pw.println("                  <input type=\"hidden\" name=\"action\" value=\"create_ghn\">");
                             pw.println("                  <input type=\"hidden\" name=\"orderId\" value=\"" + order.getOrderId() + "\">");
-                            pw.println("                  <button type=\"submit\" class=\"btn-order-action btn-order-ship\" style=\"width:100%; margin-bottom:5px;\">&#128666; Chuyển giao hàng</button>");
+                                pw.println("                  <button type=\"submit\" class=\"btn-order-action btn-order-ship\" style=\"width:100%; margin-bottom:5px;\">&#128666; Tạo vận đơn GHN</button>");
+                            } else {
+                                pw.println("                  <div style=\"font-size:0.78rem; color:#0369a1; margin-bottom:6px;\">&#128666; Đã đẩy sang GHN (tự động cập nhật)</div>");
+                            }
                             pw.println("                </form>");
                             pw.println("                <button type=\"button\" class=\"btn-order-action btn-order-cancel\" onclick=\"openCancelModal('" + order.getOrderId() + "')\">&#10005; Hủy đơn</button>");
                         } else if (st == OrderStatus.SHIPPING) {

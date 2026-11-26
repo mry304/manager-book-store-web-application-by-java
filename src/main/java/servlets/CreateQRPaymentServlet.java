@@ -22,6 +22,8 @@ import com.bittercode.model.Cart;
 import com.bittercode.model.UserRole;
 import com.bittercode.service.OrderService;
 import com.bittercode.service.impl.OrderServiceImpl;
+import com.bittercode.util.GHNClient;
+import com.bittercode.util.GHNConfig;
 import com.bittercode.util.PayOSConfig;
 import com.bittercode.util.StoreUtil;
 
@@ -68,11 +70,16 @@ public class CreateQRPaymentServlet extends HttpServlet {
 
         // 1. Đọc thông tin giao hàng
         String fullName    = trim(req.getParameter("firstname"));
+        String phone       = trim(req.getParameter("phone"));
         String email       = trim(req.getParameter("email"));
         String address     = trim(req.getParameter("address"));
+        String ward        = trim(req.getParameter("ward"));
         String city        = trim(req.getParameter("city"));
         String state       = trim(req.getParameter("state"));
         String zip         = trim(req.getParameter("zip"));
+        Integer toProvinceId = parsePositiveInt(req.getParameter("toProvinceId"));
+        Integer toDistrictId = parsePositiveInt(req.getParameter("toDistrictId"));
+        String toWardCode  = trim(req.getParameter("toWardCode"));
 
         if (fullName.length() < 2 || email.isEmpty() || address.length() < 5) {
             res.sendRedirect(req.getContextPath() + "/checkout?error=" +
@@ -81,6 +88,7 @@ public class CreateQRPaymentServlet extends HttpServlet {
         }
 
         String shippingAddress = address;
+        if (!ward.isEmpty())  shippingAddress += ", " + ward;
         if (!state.isEmpty()) shippingAddress += ", " + state;
         if (!city.isEmpty())  shippingAddress += ", " + city;
         if (!zip.isEmpty())   shippingAddress += " (Mã bưu điện: " + zip + ")";
@@ -104,6 +112,15 @@ public class CreateQRPaymentServlet extends HttpServlet {
             // 5. Lưu đơn hàng vào DB với trạng thái PENDING
             String orderId = orderService.createOrderWithCode(username, cartItems, totalAmount,
                     email, shippingAddress, "Mã VietQR (PayOS)", orderCode);
+
+            double shippingFee = 0;
+            if (toDistrictId != null && !toWardCode.isEmpty() && GHNConfig.isConfigured() && GHNConfig.isOriginConfigured()) {
+                try {
+                    int totalQty = cartItems.stream().mapToInt(c -> Math.max(1, c.getQuantity())).sum();
+                    shippingFee = GHNClient.calculateFee(toDistrictId, toWardCode, Math.max(500, totalQty * 500), amountInt).total;
+                } catch (Exception ignored) {}
+            }
+            orderService.saveGHNShippingInfo(orderId, fullName, phone, toProvinceId, toDistrictId, toWardCode, shippingFee);
 
             // Xóa giỏ hàng sau khi đã đặt
             StoreUtil.clearUserCart(session, username);
@@ -279,5 +296,15 @@ public class CreateQRPaymentServlet extends HttpServlet {
             hex.append(h);
         }
         return hex.toString();
+    }
+
+    private Integer parsePositiveInt(String value) {
+        if (value == null || value.trim().isEmpty()) return null;
+        try {
+            int parsed = Integer.parseInt(value.trim());
+            return parsed > 0 ? parsed : null;
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 }

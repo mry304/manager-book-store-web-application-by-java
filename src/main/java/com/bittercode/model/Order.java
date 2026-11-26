@@ -21,6 +21,15 @@ public class Order implements Serializable {
     private String shippingEmail;
     private String shippingAddress;
     private String paymentMethod;
+    private String receiverName;
+    private String receiverPhone;
+    private Integer toProvinceId;
+    private Integer toDistrictId;
+    private String toWardCode;
+    private double shippingFee;
+    private String ghnOrderCode;
+    private String ghnStatus;
+    private Date ghnUpdatedAt;
     private List<OrderDetail> items = new ArrayList<>();
 
     public Order() {
@@ -136,6 +145,78 @@ public class Order implements Serializable {
 
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }
+
+    public String getReceiverName() {
+        return receiverName;
+    }
+
+    public void setReceiverName(String receiverName) {
+        this.receiverName = receiverName;
+    }
+
+    public String getReceiverPhone() {
+        return receiverPhone;
+    }
+
+    public void setReceiverPhone(String receiverPhone) {
+        this.receiverPhone = receiverPhone;
+    }
+
+    public Integer getToProvinceId() {
+        return toProvinceId;
+    }
+
+    public void setToProvinceId(Integer toProvinceId) {
+        this.toProvinceId = toProvinceId;
+    }
+
+    public Integer getToDistrictId() {
+        return toDistrictId;
+    }
+
+    public void setToDistrictId(Integer toDistrictId) {
+        this.toDistrictId = toDistrictId;
+    }
+
+    public String getToWardCode() {
+        return toWardCode;
+    }
+
+    public void setToWardCode(String toWardCode) {
+        this.toWardCode = toWardCode;
+    }
+
+    public double getShippingFee() {
+        return shippingFee;
+    }
+
+    public void setShippingFee(double shippingFee) {
+        this.shippingFee = shippingFee;
+    }
+
+    public String getGhnOrderCode() {
+        return ghnOrderCode;
+    }
+
+    public void setGhnOrderCode(String ghnOrderCode) {
+        this.ghnOrderCode = ghnOrderCode;
+    }
+
+    public String getGhnStatus() {
+        return ghnStatus;
+    }
+
+    public void setGhnStatus(String ghnStatus) {
+        this.ghnStatus = ghnStatus;
+    }
+
+    public Date getGhnUpdatedAt() {
+        return ghnUpdatedAt;
+    }
+
+    public void setGhnUpdatedAt(Date ghnUpdatedAt) {
+        this.ghnUpdatedAt = ghnUpdatedAt;
     }
 
     public List<OrderDetail> getItems() {

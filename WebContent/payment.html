@@ -156,6 +156,10 @@
 								<input type="text" id="fname" name="firstname" placeholder="Nguyễn Văn A" required>
 							</div>
 							<div class="checkout-input-field">
+								<label for="phone">Số điện thoại nhận hàng (GHN)</label>
+								<input type="tel" id="phone" name="phone" placeholder="0987654321" pattern="0[0-9]{8,10}" required>
+							</div>
+							<div class="checkout-input-field">
 								<label for="email">Địa chỉ Email</label>
 								<input type="email" id="email" name="email" placeholder="nguyenvana@example.com" autocomplete="email" required>
 							</div>
@@ -164,85 +168,34 @@
 								<input type="text" id="adr" name="address" placeholder="Số 123 đường Cầu Giấy" required>
 							</div>
 							<div class="checkout-input-field">
-								<label for="city">Tỉnh / Thành phố</label>
-								<select id="city" name="city" required onchange="updateDistrictOptions()">
-									<option value="">Chọn tỉnh / thành phố</option>
-									<option value="Hà Nội">Hà Nội</option>
-									<option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
-									<option value="Đà Nẵng">Đà Nẵng</option>
-									<option value="Hải Phòng">Hải Phòng</option>
-									<option value="Cần Thơ">Cần Thơ</option>
-									<option value="Bình Dương">Bình Dương</option>
-									<option value="Đồng Nai">Đồng Nai</option>
-									<option value="Quảng Ninh">Quảng Ninh</option>
-									<option value="Khánh Hòa">Khánh Hòa</option>
-									<option value="Nghệ An">Nghệ An</option>
-									<option value="An Giang">An Giang</option>
-									<option value="Bà Rịa - Vũng Tàu">Bà Rịa - Vũng Tàu</option>
-									<option value="Bắc Giang">Bắc Giang</option>
-									<option value="Bắc Kạn">Bắc Kạn</option>
-									<option value="Bạc Liêu">Bạc Liêu</option>
-									<option value="Bắc Ninh">Bắc Ninh</option>
-									<option value="Bến Tre">Bến Tre</option>
-									<option value="Bình Định">Bình Định</option>
-									<option value="Bình Phước">Bình Phước</option>
-									<option value="Bình Thuận">Bình Thuận</option>
-									<option value="Cà Mau">Cà Mau</option>
-									<option value="Cao Bằng">Cao Bằng</option>
-									<option value="Đắk Lắk">Đắk Lắk</option>
-									<option value="Đắk Nông">Đắk Nông</option>
-									<option value="Điện Biên">Điện Biên</option>
-									<option value="Đồng Tháp">Đồng Tháp</option>
-									<option value="Gia Lai">Gia Lai</option>
-									<option value="Hà Giang">Hà Giang</option>
-									<option value="Hà Nam">Hà Nam</option>
-									<option value="Hà Tĩnh">Hà Tĩnh</option>
-									<option value="Hải Dương">Hải Dương</option>
-									<option value="Hậu Giang">Hậu Giang</option>
-									<option value="Hòa Bình">Hòa Bình</option>
-									<option value="Hưng Yên">Hưng Yên</option>
-									<option value="Kiên Giang">Kiên Giang</option>
-									<option value="Kon Tum">Kon Tum</option>
-									<option value="Lai Châu">Lai Châu</option>
-									<option value="Lâm Đồng">Lâm Đồng</option>
-									<option value="Lạng Sơn">Lạng Sơn</option>
-									<option value="Lào Cai">Lào Cai</option>
-									<option value="Long An">Long An</option>
-									<option value="Nam Định">Nam Định</option>
-									<option value="Ninh Bình">Ninh Bình</option>
-									<option value="Ninh Thuận">Ninh Thuận</option>
-									<option value="Phú Thọ">Phú Thọ</option>
-									<option value="Phú Yên">Phú Yên</option>
-									<option value="Quảng Bình">Quảng Bình</option>
-									<option value="Quảng Nam">Quảng Nam</option>
-									<option value="Quảng Ngãi">Quảng Ngãi</option>
-									<option value="Quảng Trị">Quảng Trị</option>
-									<option value="Sóc Trăng">Sóc Trăng</option>
-									<option value="Sơn La">Sơn La</option>
-									<option value="Tây Ninh">Tây Ninh</option>
-									<option value="Thái Bình">Thái Bình</option>
-									<option value="Thái Nguyên">Thái Nguyên</option>
-									<option value="Thanh Hóa">Thanh Hóa</option>
-									<option value="Thừa Thiên Huế">Thừa Thiên Huế</option>
-									<option value="Tiền Giang">Tiền Giang</option>
-									<option value="Trà Vinh">Trà Vinh</option>
-									<option value="Tuyên Quang">Tuyên Quang</option>
-									<option value="Vĩnh Long">Vĩnh Long</option>
-									<option value="Vĩnh Phúc">Vĩnh Phúc</option>
-									<option value="Yên Bái">Yên Bái</option>
+								<label for="provinceSelect">Tỉnh / Thành phố (GHN)</label>
+								<select id="provinceSelect" name="toProvinceId" required onchange="onProvinceChange()">
+									<option value="">Đang tải danh sách tỉnh/thành...</option>
 								</select>
+								<input type="hidden" id="city" name="city" value="">
 							</div>
 							<div class="checkout-row-2">
 								<div class="checkout-input-field">
-									<label for="state">Quận / Huyện</label>
-									<select id="state" name="state" required disabled>
+									<label for="districtSelect">Quận / Huyện (GHN)</label>
+									<select id="districtSelect" name="toDistrictId" required disabled onchange="onDistrictChange()">
 										<option value="">Chọn tỉnh / thành phố trước</option>
 									</select>
+									<input type="hidden" id="state" name="state" value="">
 								</div>
 								<div class="checkout-input-field">
-									<label for="zip">Mã bưu điện</label>
-									<input type="text" id="zip" name="zip" placeholder="100000" inputmode="numeric" pattern="[0-9]{5,6}" maxlength="6" required>
+									<label for="wardSelect">Phường / Xã (GHN)</label>
+									<select id="wardSelect" name="toWardCode" required disabled onchange="onWardChange()">
+										<option value="">Chọn quận / huyện trước</option>
+									</select>
+									<input type="hidden" id="ward" name="ward" value="">
 								</div>
+							</div>
+							<div class="checkout-input-field">
+								<label for="zip">Mã bưu điện (không bắt buộc)</label>
+								<input type="text" id="zip" name="zip" placeholder="100000" inputmode="numeric" pattern="[0-9]{5,6}" maxlength="6">
+							</div>
+							<div id="shippingFeeInfo" style="padding:10px 14px; border-radius:10px; background:#f0fdf4; border:1px solid #bbf7d0; color:#166534; font-size:0.88rem; margin-top:8px;">
+								Phí vận chuyển GHN: <strong>Miễn phí (0 ₫)</strong> <span id="ghnEstimatedFeeText"></span>
 							</div>
 						</div>
 
@@ -280,6 +233,19 @@
 										</p>
 									</div>
 								</label>
+
+								<label style="display:flex; align-items:flex-start; gap:12px; padding:14px 16px; border:1px solid rgba(197, 137, 64, 0.3); border-radius:12px; background:#fff; cursor:pointer; transition:all 0.2s ease;">
+									<input type="radio" name="paymentType" id="methodCod" value="cod" onchange="switchPaymentMethod('cod')" style="margin-top:4px; accent-color:var(--accent-primary);">
+									<div style="flex:1;">
+										<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+											<strong style="color:var(--text-primary); font-size:0.96rem;">&#128666; Thanh toán khi nhận hàng (COD)</strong>
+											<span style="background:#fef3c7; color:#92400e; font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:999px;">Giao hàng GHN</span>
+										</div>
+										<p style="margin:4px 0 0; font-size:0.84rem; color:var(--text-secondary); line-height:1.4;">
+											Thanh toán tiền mặt trực tiếp cho nhân viên giao hàng GHN khi nhận sách.
+										</p>
+									</div>
+								</label>
 							</div>
 
 							<!-- Card Fields (Hidden by default when VietQR is selected) -->
@@ -314,7 +280,7 @@
 						<input type="checkbox" checked="checked" name="sameadr"> Địa chỉ nhận hàng trùng với địa chỉ thanh toán
 					</label>
 
-					<input type="hidden" name="paymentMethod" value="Thẻ tín dụng/ghi nợ">
+					<input type="hidden" id="paymentMethodInput" name="paymentMethod" value="Mã VietQR (PayOS)">
 					<div class="checkout-total-bar">
 						<div>
 							<strong style="display:block; font-size:1.1rem;">Xác nhận đặt hàng</strong>
@@ -330,33 +296,112 @@
 
 
 <script>
-const districtsByCity = {
-  'Hà Nội': ['Ba Đình', 'Cầu Giấy', 'Đống Đa', 'Hà Đông', 'Hoàn Kiếm', 'Hoàng Mai', 'Long Biên', 'Nam Từ Liêm', 'Thanh Xuân', 'Tây Hồ'],
-  'TP. Hồ Chí Minh': ['Quận 1', 'Quận 3', 'Quận 5', 'Quận 7', 'Quận 10', 'Bình Thạnh', 'Gò Vấp', 'Tân Bình', 'Thủ Đức'],
-  'Đà Nẵng': ['Hải Châu', 'Thanh Khê', 'Sơn Trà', 'Ngũ Hành Sơn', 'Liên Chiểu', 'Cẩm Lệ'],
-  'Hải Phòng': ['Hồng Bàng', 'Lê Chân', 'Ngô Quyền', 'Hải An', 'Kiến An', 'Dương Kinh'],
-  'Cần Thơ': ['Ninh Kiều', 'Bình Thủy', 'Cái Răng', 'Ô Môn', 'Thốt Nốt'],
-  'Bình Dương': ['Thủ Dầu Một', 'Dĩ An', 'Thuận An', 'Tân Uyên', 'Bến Cát'],
-  'Đồng Nai': ['Biên Hòa', 'Long Khánh', 'Nhơn Trạch', 'Trảng Bom', 'Long Thành'],
-  'Quảng Ninh': ['Hạ Long', 'Cẩm Phả', 'Uông Bí', 'Móng Cái', 'Quảng Yên'],
-  'Khánh Hòa': ['Nha Trang', 'Cam Ranh', 'Ninh Hòa', 'Diên Khánh', 'Vạn Ninh'],
-  'Nghệ An': ['Vinh', 'Cửa Lò', 'Hoàng Mai', 'Thái Hòa', 'Hưng Nguyên']
-};
+async function loadGHNProvinces() {
+  const provinceEl = document.getElementById('provinceSelect');
+  try {
+    const res = await fetch('api/ghn/provinces');
+    const json = await res.json();
+    provinceEl.innerHTML = '<option value="">Chọn tỉnh / thành phố</option>';
+    if (json.error === 0 && Array.isArray(json.data)) {
+      json.data.forEach(p => {
+        provinceEl.add(new Option(p.ProvinceName, p.ProvinceID));
+      });
+    }
+  } catch (e) {
+    provinceEl.innerHTML = '<option value="">Không tải được danh sách tỉnh/thành</option>';
+  }
+}
 
-function updateDistrictOptions() {
-  const city = document.getElementById('city').value;
-  const district = document.getElementById('state');
-  district.innerHTML = '';
-  if (!city) {
-    district.disabled = true;
-    district.add(new Option('Chọn tỉnh / thành phố trước', ''));
+async function onProvinceChange() {
+  const provinceEl = document.getElementById('provinceSelect');
+  const districtEl = document.getElementById('districtSelect');
+  const wardEl = document.getElementById('wardSelect');
+  const selectedText = provinceEl.selectedIndex > 0 ? provinceEl.options[provinceEl.selectedIndex].text : '';
+  document.getElementById('city').value = selectedText;
+  document.getElementById('state').value = '';
+  document.getElementById('ward').value = '';
+  document.getElementById('ghnEstimatedFeeText').textContent = '';
+
+  districtEl.innerHTML = '<option value="">Đang tải quận / huyện...</option>';
+  districtEl.disabled = true;
+  wardEl.innerHTML = '<option value="">Chọn quận / huyện trước</option>';
+  wardEl.disabled = true;
+
+  if (!provinceEl.value) {
+    districtEl.innerHTML = '<option value="">Chọn tỉnh / thành phố trước</option>';
     return;
   }
-  district.disabled = false;
-  district.add(new Option('Chọn quận / huyện', ''));
-  const districts = districtsByCity[city] || ['Thành phố / thị xã trung tâm', 'Huyện / khu vực khác'];
-  districts.forEach(function (name) { district.add(new Option(name, name)); });
+
+  try {
+    const res = await fetch('api/ghn/districts?provinceId=' + encodeURIComponent(provinceEl.value));
+    const json = await res.json();
+    districtEl.innerHTML = '<option value="">Chọn quận / huyện</option>';
+    if (json.error === 0 && Array.isArray(json.data)) {
+      json.data.forEach(d => {
+        districtEl.add(new Option(d.DistrictName, d.DistrictID));
+      });
+      districtEl.disabled = false;
+    }
+  } catch (e) {
+    districtEl.innerHTML = '<option value="">Không tải được quận / huyện</option>';
+  }
 }
+
+async function onDistrictChange() {
+  const districtEl = document.getElementById('districtSelect');
+  const wardEl = document.getElementById('wardSelect');
+  const selectedText = districtEl.selectedIndex > 0 ? districtEl.options[districtEl.selectedIndex].text : '';
+  document.getElementById('state').value = selectedText;
+  document.getElementById('ward').value = '';
+  document.getElementById('ghnEstimatedFeeText').textContent = '';
+
+  wardEl.innerHTML = '<option value="">Đang tải phường / xã...</option>';
+  wardEl.disabled = true;
+
+  if (!districtEl.value) {
+    wardEl.innerHTML = '<option value="">Chọn quận / huyện trước</option>';
+    return;
+  }
+
+  try {
+    const res = await fetch('api/ghn/wards?districtId=' + encodeURIComponent(districtEl.value));
+    const json = await res.json();
+    wardEl.innerHTML = '<option value="">Chọn phường / xã</option>';
+    if (json.error === 0 && Array.isArray(json.data)) {
+      json.data.forEach(w => {
+        wardEl.add(new Option(w.WardName, w.WardCode));
+      });
+      wardEl.disabled = false;
+    }
+  } catch (e) {
+    wardEl.innerHTML = '<option value="">Không tải được phường / xã</option>';
+  }
+}
+
+async function onWardChange() {
+  const districtId = document.getElementById('districtSelect').value;
+  const wardEl = document.getElementById('wardSelect');
+  const wardCode = wardEl.value;
+  document.getElementById('ward').value = wardEl.selectedIndex > 0 ? wardEl.options[wardEl.selectedIndex].text : '';
+  const feeSpan = document.getElementById('ghnEstimatedFeeText');
+  if (!districtId || !wardCode) {
+    feeSpan.textContent = '';
+    return;
+  }
+  try {
+    const res = await fetch('api/ghn/fee?districtId=' + encodeURIComponent(districtId) + '&wardCode=' + encodeURIComponent(wardCode));
+    const json = await res.json();
+    if (json.error === 0 && json.totalFee > 0) {
+      feeSpan.textContent = '(Phí GHN dự kiến: ' + Number(json.totalFee).toLocaleString('vi-VN') + ' ₫ — Shop tài trợ)';
+    } else {
+      feeSpan.textContent = '';
+    }
+  } catch (e) {
+    feeSpan.textContent = '';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadGHNProvinces);
 
 function showCheckoutError(message) {
   const errorBox = document.getElementById('checkoutError');
@@ -383,18 +428,30 @@ function switchPaymentMethod(method) {
   const form = document.getElementById('checkoutForm');
   const cardFields = document.getElementById('cardFieldsContainer');
   const btnSubmit = document.getElementById('btnSubmitOrder');
+  const paymentMethodInput = document.getElementById('paymentMethodInput');
   const cardInputs = ['cname', 'ccnum', 'expmonth', 'expyear', 'cvv'];
 
   if (method === 'vietqr') {
     form.action = 'create-qr-payment';
+    if (paymentMethodInput) paymentMethodInput.value = 'Mã VietQR (PayOS)';
     cardFields.style.display = 'none';
     btnSubmit.innerHTML = 'Tạo mã VietQR thanh toán &rarr;';
     cardInputs.forEach(id => {
       const el = document.getElementById(id);
       if (el) { el.required = false; }
     });
+  } else if (method === 'cod') {
+    form.action = 'pay';
+    if (paymentMethodInput) paymentMethodInput.value = 'COD (Thanh toán khi nhận hàng)';
+    cardFields.style.display = 'none';
+    btnSubmit.innerHTML = 'Đặt hàng COD (Giao qua GHN) &rarr;';
+    cardInputs.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.required = false; }
+    });
   } else {
     form.action = 'pay';
+    if (paymentMethodInput) paymentMethodInput.value = 'Thẻ tín dụng/ghi nợ';
     cardFields.style.display = 'block';
     btnSubmit.innerHTML = 'Xác nhận thanh toán thẻ &rarr;';
     cardInputs.forEach(id => {
@@ -405,14 +462,15 @@ function switchPaymentMethod(method) {
 }
 
 function validateCheckoutForm() {
-  const city = document.getElementById('city').value;
-  const district = document.getElementById('state').value;
+  const provinceId = document.getElementById('provinceSelect').value;
+  const districtId = document.getElementById('districtSelect').value;
+  const wardCode = document.getElementById('wardSelect').value;
   const isCard = document.getElementById('methodCard') && document.getElementById('methodCard').checked;
 
   document.getElementById('checkoutError').style.display = 'none';
 
-  if (!city || !district) {
-    showCheckoutError('Vui lòng chọn đầy đủ tỉnh/thành phố và quận/huyện nhận hàng.');
+  if (!provinceId || !districtId || !wardCode) {
+    showCheckoutError('Vui lòng chọn đầy đủ tỉnh/thành phố, quận/huyện và phường/xã nhận hàng.');
     return false;
   }
 

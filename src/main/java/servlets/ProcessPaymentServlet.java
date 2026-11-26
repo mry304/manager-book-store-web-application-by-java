@@ -25,6 +25,8 @@ import com.bittercode.service.BookService;
 import com.bittercode.service.OrderService;
 import com.bittercode.service.impl.BookServiceImpl;
 import com.bittercode.service.impl.OrderServiceImpl;
+import com.bittercode.util.GHNClient;
+import com.bittercode.util.GHNConfig;
 import com.bittercode.util.StoreUtil;
 import com.bittercode.util.OrderEmailService;
 
@@ -97,6 +99,22 @@ public class ProcessPaymentServlet extends HttpServlet {
 
                 createdOrderId = orderService.createOrder(username, cartItems, totalAmount,
                         shippingEmail, shippingAddress, paymentMethod);
+
+                String fullName = trim(req.getParameter("firstname"));
+                String phone = trim(req.getParameter("phone"));
+                Integer toProvinceId = parsePositiveInt(req.getParameter("toProvinceId"));
+                Integer toDistrictId = parsePositiveInt(req.getParameter("toDistrictId"));
+                String toWardCode = trim(req.getParameter("toWardCode"));
+                double shippingFee = 0;
+                if (toDistrictId != null && !toWardCode.isEmpty() && GHNConfig.isConfigured() && GHNConfig.isOriginConfigured()) {
+                    try {
+                        int totalQty = cartItems.stream().mapToInt(c -> Math.max(1, c.getQuantity())).sum();
+                        shippingFee = GHNClient.calculateFee(toDistrictId, toWardCode,
+                                Math.max(500, totalQty * 500), (int) Math.round(totalAmount)).total;
+                    } catch (Exception ignored) {}
+                }
+                orderService.saveGHNShippingInfo(createdOrderId, fullName, phone,
+                        toProvinceId, toDistrictId, toWardCode, shippingFee);
 
                 // The order transaction has completed. Queue email work so SMTP latency
                 // never delays the checkout response.
@@ -171,6 +189,7 @@ public class ProcessPaymentServlet extends HttpServlet {
     private String buildShippingAddress(HttpServletRequest req) {
         StringBuilder address = new StringBuilder();
         appendAddressPart(address, req.getParameter("address"));
+        appendAddressPart(address, req.getParameter("ward"));
         appendAddressPart(address, req.getParameter("state"));
         appendAddressPart(address, req.getParameter("city"));
         appendAddressPart(address, req.getParameter("zip"));
@@ -179,11 +198,15 @@ public class ProcessPaymentServlet extends HttpServlet {
 
     private String validateCheckout(HttpServletRequest req) {
         String fullName = trim(req.getParameter("firstname"));
+        String phone = trim(req.getParameter("phone"));
         String email = trim(req.getParameter("email"));
         String address = trim(req.getParameter("address"));
         String city = trim(req.getParameter("city"));
         String district = trim(req.getParameter("state"));
         String zipCode = trim(req.getParameter("zip"));
+        String paymentType = trim(req.getParameter("paymentType"));
+        String paymentMethod = trim(req.getParameter("paymentMethod"));
+        boolean isCod = "cod".equalsIgnoreCase(paymentType) || paymentMethod.toUpperCase().contains("COD");
         String cardName = trim(req.getParameter("cardname"));
         String cardNumber = trim(req.getParameter("cardnumber")).replaceAll("[ -]", "");
         String monthValue = trim(req.getParameter("expmonth"));
@@ -193,14 +216,20 @@ public class ProcessPaymentServlet extends HttpServlet {
         if (fullName.length() < 2 || email.isEmpty() || address.length() < 5) {
             return "Vui lòng điền đầy đủ họ tên, email và địa chỉ nhận hàng.";
         }
+        if (!phone.isEmpty() && !phone.matches("^0\\d{8,10}$")) {
+            return "Số điện thoại nhận hàng không hợp lệ.";
+        }
         if (!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
             return "Địa chỉ email không đúng định dạng.";
         }
         if (city.isEmpty() || district.isEmpty()) {
             return "Vui lòng chọn tỉnh/thành phố và quận/huyện hợp lệ.";
         }
-        if (!zipCode.matches("\\d{5,6}")) {
+        if (!zipCode.isEmpty() && !zipCode.matches("\\d{5,6}")) {
             return "Mã bưu điện phải gồm 5 hoặc 6 chữ số.";
+        }
+        if (isCod) {
+            return null;
         }
         if (!cardName.matches("^[\\p{L} .'-]{2,100}$")) {
             return "Tên in trên thẻ không hợp lệ.";
@@ -241,6 +270,16 @@ public class ProcessPaymentServlet extends HttpServlet {
 
     private String trim(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    private Integer parsePositiveInt(String value) {
+        if (value == null || value.trim().isEmpty()) return null;
+        try {
+            int parsed = Integer.parseInt(value.trim());
+            return parsed > 0 ? parsed : null;
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private void appendAddressPart(StringBuilder address, String value) {

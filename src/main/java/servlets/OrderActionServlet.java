@@ -118,10 +118,27 @@ public class OrderActionServlet extends HttpServlet {
                 }
                 boolean ok = orderService.updateOrderStatusBySeller(orderId, OrderStatus.CONFIRMED.name(), null);
                 if (ok) {
-                    sendResponse(res, isJsonRequest, true, "Đã xác nhận đơn hàng thành công!", "orders?status=CONFIRMED");
+                    String ghnMsg = "";
+                    try {
+                        String ghnCode = orderService.createGHNOrderForSeller(orderId);
+                        if (ghnCode != null && !ghnCode.isEmpty()) {
+                            ghnMsg = " & Đã tạo vận đơn GHN: " + ghnCode;
+                        }
+                    } catch (Exception ghnEx) {
+                        ghnMsg = " (Lưu ý GHN: " + ghnEx.getMessage() + ")";
+                    }
+                    sendResponse(res, isJsonRequest, true, "Đã xác nhận đơn hàng thành công" + ghnMsg + "!", "orders?status=CONFIRMED");
                 } else {
                     sendResponse(res, isJsonRequest, false, "Không thể xác nhận đơn hàng này", "orders");
                 }
+                return;
+            } else if ("create_ghn".equalsIgnoreCase(action)) {
+                if (!isSeller) {
+                    sendResponse(res, isJsonRequest, false, "Chỉ quản trị viên mới có quyền tạo vận đơn GHN", "orders");
+                    return;
+                }
+                String ghnCode = orderService.createGHNOrderForSeller(orderId);
+                sendResponse(res, isJsonRequest, true, "Đã tạo vận đơn GHN thành công: " + ghnCode, "orders?status=CONFIRMED");
                 return;
             } else if ("ship".equalsIgnoreCase(action)) {
                 if (!isSeller) {

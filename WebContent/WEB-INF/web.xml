@@ -231,6 +231,42 @@
 		<url-pattern>/api/check-order-status</url-pattern>
 	</servlet-mapping>
 
+	<!-- GHN Shipping Integration Servlets -->
+	<servlet>
+		<servlet-name>GHNAddressServlet</servlet-name>
+		<servlet-class>servlets.GHNAddressServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>GHNAddressServlet</servlet-name>
+		<url-pattern>/api/ghn/provinces</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>GHNAddressServlet</servlet-name>
+		<url-pattern>/api/ghn/districts</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>GHNAddressServlet</servlet-name>
+		<url-pattern>/api/ghn/wards</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>GHNShippingFeeServlet</servlet-name>
+		<servlet-class>servlets.GHNShippingFeeServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>GHNShippingFeeServlet</servlet-name>
+		<url-pattern>/api/ghn/fee</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>GHNWebhookServlet</servlet-name>
+		<servlet-class>servlets.GHNWebhookServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>GHNWebhookServlet</servlet-name>
+		<url-pattern>/api/ghn-webhook</url-pattern>
+	</servlet-mapping>
+
 	<!-- Admin Review Management Servlet -->
 	<servlet>
 		<servlet-name>AdminReviewServlet</servlet-name>

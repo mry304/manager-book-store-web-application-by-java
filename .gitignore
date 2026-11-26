@@ -1,5 +1,6 @@
 /target/
 /build/
+graphify-out/
 .classpath
 .settings
 .idea/
@@ -8,3 +9,5 @@ vendor/
 node_modules/
 *.log
 .env
+src/main/resources/application.properties
+WebContent/WEB-INF/classes/application.properties

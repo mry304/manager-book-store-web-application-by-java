@@ -50,4 +50,15 @@ public interface OrderService {
     public boolean updateOrderStatusBySeller(String orderId, String newStatus, String cancelReason) throws StoreException;
 
     public int checkAndAutoCompleteOrders() throws StoreException;
+
+    public void saveGHNShippingInfo(String orderId, String receiverName, String receiverPhone,
+                                    Integer toProvinceId, Integer toDistrictId, String toWardCode,
+                                    double shippingFee) throws StoreException;
+
+    public Order getOrderByGhnOrderCode(String ghnOrderCode) throws StoreException;
+
+    public String createGHNOrderForSeller(String orderId) throws StoreException;
+
+    public boolean updateOrderFromGHNWebhook(String ghnOrderCode, String ghnStatus,
+                                             String eventTimeIso, String rawPayload) throws StoreException;
 }
