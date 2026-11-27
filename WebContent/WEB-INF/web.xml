@@ -297,4 +297,41 @@
 		<url-pattern>/payos-debug</url-pattern>
 	</servlet-mapping>
 
+	<!-- Customer Book Consignment Servlets -->
+	<servlet>
+		<servlet-name>ConsignBookServlet</servlet-name>
+		<servlet-class>servlets.ConsignBookServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ConsignBookServlet</servlet-name>
+		<url-pattern>/consign</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>MyConsignmentsServlet</servlet-name>
+		<servlet-class>servlets.MyConsignmentsServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MyConsignmentsServlet</servlet-name>
+		<url-pattern>/my-consignments</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>ConsignRespondServlet</servlet-name>
+		<servlet-class>servlets.ConsignRespondServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ConsignRespondServlet</servlet-name>
+		<url-pattern>/consign-respond</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>ConsignmentImageServlet</servlet-name>
+		<servlet-class>servlets.ConsignmentImageServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ConsignmentImageServlet</servlet-name>
+		<url-pattern>/consignment-images/*</url-pattern>
+	</servlet-mapping>
+
 </web-app>

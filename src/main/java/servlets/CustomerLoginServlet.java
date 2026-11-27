@@ -25,6 +25,11 @@ public class CustomerLoginServlet extends HttpServlet {
 
     UserService authService = new UserServiceImpl();
 
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
+        res.sendRedirect(req.getContextPath() + "/CustomerLogin.html");
+    }
+
     public void doPost(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
         res.setContentType("text/html; charset=UTF-8");
         String uName = req.getParameter(UsersDBConstants.COLUMN_USERNAME);

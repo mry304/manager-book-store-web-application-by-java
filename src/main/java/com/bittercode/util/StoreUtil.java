@@ -1,11 +1,15 @@
 package com.bittercode.util;
 
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -379,5 +383,56 @@ public class StoreUtil {
         } else {
             return String.format(java.util.Locale.GERMANY, "%,.2f đ", price);
         }
+    }
+
+    private static final String CSRF_SESSION_KEY = "CSRF_TOKEN";
+    private static final SecureRandom CSRF_RANDOM = new SecureRandom();
+
+    /**
+     * Escape ký tự đặc biệt HTML để chống XSS khi render dữ liệu người dùng nhập.
+     */
+    public static String escapeHtml(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
+    }
+
+    /**
+     * Lấy hoặc sinh mới CSRF token ngẫu nhiên gắn với phiên làm việc hiện tại.
+     */
+    public static String getOrCreateCsrfToken(HttpSession session) {
+        if (session == null) {
+            return "";
+        }
+        Object existing = session.getAttribute(CSRF_SESSION_KEY);
+        if (existing instanceof String && !((String) existing).isEmpty()) {
+            return (String) existing;
+        }
+        byte[] bytes = new byte[32];
+        CSRF_RANDOM.nextBytes(bytes);
+        String token = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        session.setAttribute(CSRF_SESSION_KEY, token);
+        return token;
+    }
+
+    /**
+     * Kiểm tra CSRF token từ form POST với token trong session theo constant-time.
+     */
+    public static boolean isValidCsrfToken(HttpSession session, String submittedToken) {
+        if (session == null || submittedToken == null || submittedToken.isEmpty()) {
+            return false;
+        }
+        Object expectedObj = session.getAttribute(CSRF_SESSION_KEY);
+        if (!(expectedObj instanceof String) || ((String) expectedObj).isEmpty()) {
+            return false;
+        }
+        return MessageDigest.isEqual(
+                ((String) expectedObj).getBytes(StandardCharsets.UTF_8),
+                submittedToken.getBytes(StandardCharsets.UTF_8));
     }
 }
